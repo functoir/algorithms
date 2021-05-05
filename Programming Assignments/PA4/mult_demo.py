@@ -14,11 +14,11 @@ I worked on this problem alone (see write-up document for explanation).
 I did not refer to any outside/internet sources
 """
 
-import random
-import matplotlib
-import matplotlib.pyplot as plt
-from timeit import timeit
 import math
+import random
+from timeit import timeit
+
+import matplotlib.pyplot as plt
 
 k_mult_ops = 0
 naive_mult_ops = 0
@@ -56,6 +56,8 @@ def k_mult(ps, qs, start=0, end=None):
     else:
         # Initialize variables
         results, a_minus_b, d_minus_c = [], [], []
+        for index in range(2*end - 1):
+            results.append(0)
         mid = math.ceil((start + end) / 2)              # Get mid-point
 
         k_mult_ops += 1
@@ -74,7 +76,7 @@ def k_mult(ps, qs, start=0, end=None):
                 d_minus_c.append(-qs[i])
                 k_mult_ops += 2
 
-            if mid < (end-mid):                         # if second half has more elements than first half
+            if i == mid-1 and mid < (end-mid):                         # if second half has more elements than first half
                 for j in range(mid+i, end):
                     a_minus_b.append(-ps[j])
                     d_minus_c.append(qs[j])
@@ -83,29 +85,35 @@ def k_mult(ps, qs, start=0, end=None):
         three = k_mult(a_minus_b, d_minus_c)   # recursive call to k_mult
         # Merge results of a*c into results
         for i in range(len(ac)):
-            results.append(ac[i])
+            results[i] += ac[i]
+            # results.append(ac[i])
 
         # Merge (a-b)*(d-c) + ac + bd into results, shifted by t
         for i in range(len(three)):
-            try:                                        # if elements exists, add
-                results[mid+i] += three[i]
+            results[mid+i] += three[i]
+            # try:                                        # if elements exists, add
+            #     k_mult_ops += 1
+            # except IndexError:                           # if not, append
+            #     results.append(three[i])
+
+            # if i < len(ac):
+
+        for i in range(len(ac)):
+            print(f"01 mid = {mid}; mid + i = {mid + i}; len(results) = {len(results)}")
+            results[mid+i] += ac[i]
+            # try:
+            #     k_mult_ops += 1
+            # except IndexError:
+            #     results.append(ac[i])
+
+        # if i < len(bd):
+        for i in range(len(bd)):
+            print(f"02 mid = {mid}; mid + i = {mid + i}; len(results) = {len(results)}")
+            try:
+                results[mid+i] += bd[i]
                 k_mult_ops += 1
-            except IndexError:                           # if not, append
-                results.append(three[i])
-
-            if i < len(ac):
-                try:
-                    results[mid+i] += ac[i]
-                    k_mult_ops += 1
-                except IndexError:
-                    results.append(ac[i])
-
-            if i < len(bd):
-                try:
-                    results[mid+i] += bd[i]
-                    k_mult_ops += 1
-                except IndexError:
-                    results.append(bd[i])
+            except IndexError:
+                results.append(bd[i])
 
         # Merge b*d into results, shifted by 2t
         for i in range(len(bd)):
@@ -126,9 +134,9 @@ if __name__ == "__main__":
     poly2 = make_poly(4000)
 
     # Verification test:
-    # for i in range(10):
-    #     print(f"naive: {naive_mult(poly1[:i], poly2[:i])}")
-    #     print(f"karatsuba: {k_mult(poly1[:i], poly2[:i])}")
+    for index in range(10):
+        print(f"naive: {naive_mult(poly1[:index], poly2[:index])}")
+        print(f"karatsuba: {k_mult(poly1[:index], poly2[:index])}")
 
     ns = (list(range(50, 300))
           + list(range(300, 600, 5)) + list(range(600, 1000, 20))
@@ -141,24 +149,24 @@ if __name__ == "__main__":
     naive_ops = []
     k_ops = []
 
-    for n in ns:
-
-        first = poly1[:n]
-        second = poly2[:n]
-
-        print(f"Generating data with n = {n}")
-
-        naive_runtime.append(timeit("naive_mult(first, second)",
-                                    number=10, globals=globals()))
-        k_runtime.append(timeit("k_mult(first, second)",
-                                number=10, globals=globals()))
-        ratios.append(k_runtime[-1] / naive_runtime[-1])
-
-        logs.append(n ** math.log(3, 2))
-
-        naive_ops.append(naive_mult_ops)
-        k_ops.append(k_mult_ops)
-        naive_mult_ops, k_mult_ops = 0, 0
+    # for n in ns:
+    #
+    #     first = poly1[:n]
+    #     second = poly2[:n]
+    #
+    #     print(f"Generating data with n = {n}")
+    #
+    #     naive_runtime.append(timeit("naive_mult(first, second)",
+    #                                 number=10, globals=globals()))
+    #     k_runtime.append(timeit("k_mult(first, second)",
+    #                             number=10, globals=globals()))
+    #     ratios.append(k_runtime[-1] / naive_runtime[-1])
+    #
+    #     logs.append(n ** math.log(3, 2))
+    #
+    #     naive_ops.append(naive_mult_ops)
+    #     k_ops.append(k_mult_ops)
+    #     naive_mult_ops, k_mult_ops = 0, 0
 
     # ratios.append(better_times[-1] / worse_times[-1])
     # plt.subplot(121);
@@ -178,21 +186,21 @@ if __name__ == "__main__":
     # plt.show()
 
     # Num of operations:
-    plt.subplot(121);
-    plt.grid(True, which="both")
-    plt.xlabel("List length")
-    plt.ylabel("No. of Operations")
-    # plt.plot(ns, ratios, "--ro")
-    plt.plot(ns, naive_ops, "--bo")
-    plt.plot(ns, k_ops, "--ro")
+    # plt.subplot(121);
+    # plt.grid(True, which="both")
+    # plt.xlabel("List length")
+    # plt.ylabel("No. of Operations")
+    # # plt.plot(ns, ratios, "--ro")
+    # plt.plot(ns, naive_ops, "--bo")
+    # plt.plot(ns, k_ops, "--ro")
+    # # plt.show()
+    #
+    # # Hidden constant:
+    # plt.subplot(122);
+    # plt.grid(True, which="both")
+    # plt.xlabel("n^log_{2}(3)")
+    # plt.ylabel("Runtime")
+    # # plt.plot(ns, ratios, "--ro")
+    # # plt.plot(logs, naive, "--bo")
+    # plt.plot(logs, k_ops, "--ro")
     # plt.show()
-
-    # Hidden constant:
-    plt.subplot(122);
-    plt.grid(True, which="both")
-    plt.xlabel("n^log_{2}(3)")
-    plt.ylabel("Runtime")
-    # plt.plot(ns, ratios, "--ro")
-    # plt.plot(logs, naive, "--bo")
-    plt.plot(logs, k_ops, "--ro")
-    plt.show()

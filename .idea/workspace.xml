@@ -5,9 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6db71a3d-88ca-4a25-a1b0-a41249df3dbc" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Programming Assignments/PA4/mult_demo.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Programming Assignments/PA4/mult_demo_old.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Programming Assignments/PA4/mult_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/Programming Assignments/PA4/mult_demo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,6 +110,9 @@
       <module name="algorithms" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Programming Assignments/PA4" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -156,7 +158,9 @@
       <workItem from="1619234194601" duration="884000" />
       <workItem from="1619239855117" duration="601000" />
       <workItem from="1619240786393" duration="9000" />
-      <workItem from="1619455811067" duration="33830000" />
+      <workItem from="1619455811067" duration="35087000" />
+      <workItem from="1619504002464" duration="23000" />
+      <workItem from="1620028857110" duration="2151000" />
     </task>
     <servers />
   </component>
