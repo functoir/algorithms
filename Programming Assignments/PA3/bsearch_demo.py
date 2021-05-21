@@ -101,6 +101,7 @@ if __name__ == "__main__":
 
         print(f"Generating and sorting data with n = {n}")
         data = np.sort(np.random.randint(maxkey, size=n)).tolist()
+        print(data)
 
         better_times.append(timeit("test_search(binsrch_good, data)",
                                    number=10, globals=globals()))

@@ -31,7 +31,7 @@ def make_poly(degree, seed=2021):
 
 def naive_mult(ps: list, qs: list):
     global naive_mult_ops
-    rs = []
+    rs: list = []
     for k in range(2 * len(ps) - 1):            # Loop to 2n remembering that Python indexing starts at 0
         rk = 0                                  # Initialize rk
         for i in range(k+1):                    # loop to k
