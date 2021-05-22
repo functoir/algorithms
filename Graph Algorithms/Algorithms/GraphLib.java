@@ -398,7 +398,7 @@ public class GraphLib<V,E> {
         ;
     }
 
-    private @NotNull
+    public @NotNull
     Graph<V,E> copyGraph(Graph<V,E> G) {
 
         /* create copy Graph */
