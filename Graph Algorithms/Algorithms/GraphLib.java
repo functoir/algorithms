@@ -3,19 +3,28 @@ import java.util.*;
 
 /**
  * A library of Graph algorithms.
- * @param <V> vertex data type
- * @param <E> edge data type
  * @author Amittai J. Wekesa (@siavava)
  */
-public class GraphLib<V,E> {
+public class GraphLib {
 
-    public Map<V,V> bfs(Graph<V,E> G, V start) {
+    /**
+     * Breadth-First Search
+     * @param G: Graph
+     * @param start start vertex
+     * @param <V> vertex data type
+     * @param <E> edge data type
+     * @return Map containing vertices and their predecessors.
+     *          {V vertex -> V predecessor}
+     *          Start vertex points to "null" as predecessor.
+     *          Individual paths can be reconstructed by back-tracing.
+     */
+    public static <V,E> Map<V,V> bfs(Graph<V,E> G, V start) {
         System.out.println("Breadth-First Search from " + start);
 
         /* initialize variables */
         Map<V,V> backTrack = new HashMap<>();
         Set<V> visited = new HashSet<>();
-        Queue<V> queue = new LinkedList<>();
+        Queue<V> queue = new LinkedList<>();    // better than ArrayList since we add to tail, remove from head
 
         backTrack.put(start, null);     // add start vertex to backtrack
         queue.add(start);               // add start to queue
@@ -35,7 +44,19 @@ public class GraphLib<V,E> {
         /* return generated paths */
         return backTrack;
     }
-    public Map<V,V> dfs(Graph<V,E> G, V start) {
+
+    /**
+     * Depth-First Search
+     * @param G: Graph
+     * @param start start vertex
+     * @param <V> vertex data type
+     * @param <E> edge data type
+     * @return Map containing vertices and their predecessors.
+     *          {V vertex -> V predecessor}
+     *          Start vertex points to "null" as predecessor.
+     *          Individual paths can be reconstructed by back-tracing.
+     */
+    public static <V,E> Map<V,V> dfs(Graph<V,E> G, V start) {
         System.out.println("Depth-First Search from " + start);
 
         /* initialize variables */
@@ -69,9 +90,9 @@ public class GraphLib<V,E> {
      * Returns a topological ordering of a Graph
      *
      * @param G: Graph to sort
-     * @return a topological ordering of a Graph, or null if Graph is cyclic
+     * @return Queue, a topological ordering of a Graph, or null if Graph is cyclic
      */
-    public Queue<V> TopoSort(Graph<V,E> G) {
+    public static <V,E> Queue<V> TopoSort(Graph<V,E> G) {
 
         /*
          * create copy of Graph
@@ -116,7 +137,7 @@ public class GraphLib<V,E> {
      * @return Map of each vertex to Map of adjacent vertices, costs
      *          {vertex -> {adjacent vertex -> shortest path}}
      */
-    public Map<V, Map<V, Double>> FloydWarshallAPSP(Graph<V, ? extends Double> G) {
+    public static <V> Map<V, Map<V, Double>> FloydWarshallAPSP(Graph<V, ? extends Double> G) {
         int n = G.numVertices();
         double[][][] OPT = new double[n+1][n+1][n+1];
         List<V> vertices = (List<V>) G.vertices();
@@ -182,13 +203,11 @@ public class GraphLib<V,E> {
      * @param start: start vertex
      * @return Map of costs of vertices from start
      */
-    public Map<V, Double> Dijkstra(Graph<V, ? extends Double> G, V start) {
+    public static <V> Map<V, Double> Dijkstra(Graph<V, ? extends Double> G, V start) {
         int n = G.numVertices();                    // get num of vertices in Graph
         Map<V, Double> costs = new HashMap<>();     // initialize map of costs
-        Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
 
-        /* save start vertex to back-track */
-        backTrack.put(start, null);
+        /* save start vertex */
         costs.put(start, 0.0);
 
         /* initialize queue of vertices to visit */
@@ -213,32 +232,24 @@ public class GraphLib<V,E> {
                 /* get neighbors */
                 for (V v : G.outNeighbors(u)) {
 
-                    /*make sure we don't traverse backwards */
-                    if (!backTrack.get(u).equals(v)) {
+                    /* get cost of edge */
+                    double edgeCost = G.getLabel(u, v);
 
-                        /* get cost of edge */
-                        double edgeCost = G.getLabel(u, v);
+                    /* get costs of previous vertex */
+                    double predecessor = costs.get(u);
 
-                        /* get costs of previous vertex */
-                        double predecessor = costs.get(u);
+                    /* get current cost of vertex. if nonexistent, set to infinity */
+                    double currentCost = costs.getOrDefault(v, Double.MAX_VALUE);
 
-                        /* get current cost of vertex. if nonexistent, set to infinity */
-                        double currentCost = costs.getOrDefault(v, Double.MAX_VALUE);
+                    /* if cost is better than saved score, save it */
+                    if (predecessor + edgeCost < currentCost) {
+                        costs.remove(v);
+                        costs.put(v, predecessor+edgeCost);
 
-                        /* if cost is better than saved score, save it */
-                        if (predecessor + edgeCost < currentCost) {
-                            costs.remove(v);
-                            costs.put(v, predecessor+edgeCost);
-
-                            /* update the backtrack to reflect new min-cost neighbor */
-                            backTrack.remove(u);
-                            backTrack.put(u, v);
-
-                            /* get next neighbors of current vertex and add to queue */
-                            for (V next : G.outNeighbors(v)) {
-                                if (!next.equals(u)) {
-                                    nextVertices.add(next);
-                                }
+                        /* get next neighbors of current vertex and add to queue */
+                        for (V next : G.outNeighbors(v)) {
+                            if (!next.equals(u)) {
+                                nextVertices.add(next);
                             }
                         }
                     }
@@ -259,7 +270,7 @@ public class GraphLib<V,E> {
      * @param start: start vertex
      * @return Map of costs of vertices from start
      */
-    public List<V> DijkstraPath(Graph<V, ? extends Double> G, V start, V end) {
+    public static <V> List<V> DijkstraPath(Graph<V, ? extends Double> G, V start, V end) {
         int n = G.numVertices();                    // get num of vertices in Graph
         Map<V, Double> costs = new HashMap<>();     // initialize map of costs
         Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
@@ -328,24 +339,25 @@ public class GraphLib<V,E> {
         /* rebuild path */
         Stack<V> path = new Stack<>();
 
-        /* push final vertex to path */
-        path.push(end);
-
         /* backTrack and prepend vertices to path */
         V vertex = end;
         while (vertex != null) {
-            V pred = backTrack.get(vertex);
-            if (pred != null) {
-                path.push(pred);
-            }
-            vertex = pred;
+            path.push(vertex);
+            vertex = backTrack.get(vertex);
         }
 
         /* return the path */
         return path;
     }
 
-    public Map<V, Double> BellmanFord(Graph<V, ? extends Double> G, V start) {
+    /**
+     * Bellman-Ford algorithm for computing shortest paths from given vertex.
+     * @param G Graph. Must implement edge labels as a numerical type.
+     * @param start start vertex
+     * @return Map of all vertices in the Graph and their distance from start vertex.
+     * Returns infinity for vertices with no no paths to start vertex
+     */
+    public static <V> Map<V, Double> BellmanFord(Graph<V, ? extends Double> G, V start) {
 
         /* initialize variables */
         int n = G.numVertices();
@@ -394,11 +406,100 @@ public class GraphLib<V,E> {
         /* return calculated costs */
         return costs;
     }
-    public void AStar() {
+
+    /**
+     * Bellman-Ford algorithm for computing shortest paths from given vertex.
+     * @param G Graph. Must implement edge labels as a numerical type.
+     * @param start start vertex
+     * @param end end vertex
+     * @return Ordered list representing the shortest pathway from start vertex to end vertex.
+     * Returns null if no path found.
+     */
+    public static <V> List<V> BellmanFordPath(Graph<V, ? extends Double> G, V start, V end) {
+
+        /* initialize variables */
+        int n = G.numVertices();
+        List<V> vertices = (List<V>) G.vertices();
+        Map<V, Double> costs = new HashMap<>();
+        Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
+        costs.put(start, 0.0);
+
+        /* initialize table */
+        double[][] OPT = new double[n][n+1];
+
+        /* save start vertex to back-track */
+        backTrack.put(start, null);
+
+        /* initialize zero-th iteration */
+        for (int i=1; i<=n; i++) {
+            OPT[0][i] = Double.MAX_VALUE;
+        }
+
+        /* start vertex to itself is 0 */
+        OPT[0][vertices.indexOf(start)+1] = 0;
+
+        /* loop 1 to n-1 times */
+        for (int i=1; i<n; i++) {
+
+            for (V currentVertex : G.vertices()) {                              // for each vertex...
+                int index = vertices.indexOf(currentVertex);
+                OPT[i][index] = OPT[i-1][index];                                // get value from previous iteration
+            }
+            for (V currentVertex : G.vertices()) {                              // for each vertex...
+                int index = vertices.indexOf(currentVertex);
+                for (V nextVertex : G.inNeighbors(currentVertex)) {             // get outbound neighbors
+                    int nextIndex = vertices.indexOf(nextVertex);
+                    double transition = G.getLabel(currentVertex, nextVertex);
+
+                    /*
+                     * if path from current vertex improves min cost to neighbor,
+                     * perform the improvement and save the new cost
+                     */
+
+                    if (OPT[i-1][index] + index < OPT[i][nextIndex]) {
+
+                        /* update cost */
+                        OPT[i][nextIndex] = OPT[i-1][index] + transition;
+                        costs.remove(nextVertex);
+                        costs.put(nextVertex, OPT[i][nextIndex]);
+
+                        /* update backTrack */
+                        backTrack.remove(nextVertex);
+                        backTrack.put(nextVertex, currentVertex);
+                    }
+                }
+            }
+        }
+
+        /* if cost of end vertex is infinity, no path eas found */
+        if (costs.get(end) == Double.MAX_VALUE) {
+            System.err.println("No path was found  from " + start + " to " + end + ".");
+            return null;
+        }
+
+        /* rebuild path */
+        Stack<V> path = new Stack<>();
+
+        /* backTrack and prepend vertices to path */
+        V vertex = end;
+        while (vertex != null) {
+            path.push(vertex);
+            vertex = backTrack.get(vertex);
+        }
+
+        /* return the path */
+        return path;
+    }
+
+
+
+
+
+    public static <V> void AStar(Graph <V, ? extends Comparable<?>> G, V start, V end) {
         ;
     }
 
-    public @NotNull
+    public static <V,E> @NotNull
     Graph<V,E> copyGraph(Graph<V,E> G) {
 
         /* create copy Graph */
