@@ -111,13 +111,14 @@ public class GraphLib<V,E> {
     /**
      * Floyd-Warshall's All-Pairs-Shortest-Paths algorithm
      * to compute all shortest paths in a Graph.
-     * @param G: An adjacency list representation of Graph
+     * @param G: Graph implementing some vertex type and some edge type.
+     *         Edge type must extend "Double" datatype (i.e. must be a number).
      * @return Map of each vertex to Map of adjacent vertices, costs
      *          {vertex -> {adjacent vertex -> shortest path}}
      */
-    public Map<V, Map<V, Integer>> FloydWarshallAPSP(Graph<V,E> G) {
+    public Map<V, Map<V, Double>> FloydWarshallAPSP(Graph<V, ? extends Double> G) {
         int n = G.numVertices();
-        int[][][] OPT = new int[n+1][n+1][n+1];
+        double[][][] OPT = new double[n+1][n+1][n+1];
         List<V> vertices = (List<V>) G.vertices();
 
         /* initial step: calculate costs direct connections */
@@ -132,7 +133,7 @@ public class GraphLib<V,E> {
                     V u = vertices.get(i-1);
                     V v = vertices.get(j-1);
                     if (G.hasEdge(u, v)) {
-                        OPT[i][j][0] = (int) G.getLabel(u, v);
+                        OPT[i][j][0] = G.getLabel(u, v);
                     }
                 }
             }
@@ -149,7 +150,7 @@ public class GraphLib<V,E> {
         }
 
         /* Build Mapping of all costs */
-        Map<V,Map<V,Integer>> costs = new HashMap<>();
+        Map<V,Map<V,Double>> costs = new HashMap<>();
 
         /* For each vertex */
         for (int i=1; i<n; i++) {
@@ -160,8 +161,8 @@ public class GraphLib<V,E> {
 
                 /* Get computed cost and save */
                 V v = vertices.get(j);
-                int cost = OPT[i][j][n];
-                Map<V, Integer>currentCosts = costs.getOrDefault(u, new HashMap<>());
+                double cost = OPT[i][j][n];
+                Map<V, Double>currentCosts = costs.getOrDefault(u, new HashMap<>());
                 currentCosts.put(v, cost);
                 costs.put(u, currentCosts);
             }
@@ -171,12 +172,227 @@ public class GraphLib<V,E> {
         return costs;
     }
 
-    public void Dijkstra() {
-        ;
+    /**
+     * Dijkstra's algorithm for single-source shortest paths.
+     * Returns a Map of all the other vertices connected to the start vertex
+     * and their respective shortest costs from start vertices.
+     * To compute actual shortest path, use DijkstraPath().
+     * @param G: Graph implementing some vertex type and some edge type.
+     *         Edge type must extend "Double" datatype (i.e. must be a number).
+     * @param start: start vertex
+     * @return Map of costs of vertices from start
+     */
+    public Map<V, Double> Dijkstra(Graph<V, ? extends Double> G, V start) {
+        int n = G.numVertices();                    // get num of vertices in Graph
+        Map<V, Double> costs = new HashMap<>();     // initialize map of costs
+        Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
+
+        /* save start vertex to back-track */
+        backTrack.put(start, null);
+        costs.put(start, 0.0);
+
+        /* initialize queue of vertices to visit */
+        Queue<V> toVisit = new LinkedList<>();
+
+        /* add start vertex */
+        toVisit.add(start);
+
+        /*
+         * loop from 1 to n-1
+         * since vertices can only appear once in a shortest path.
+         */
+        for (int i=1; i<n; i++) {
+
+            /* track queue of next vertices */
+            Queue<V> nextVertices = new LinkedList<>();
+
+            /* while current queue still has vertices, visit them */
+            while (!toVisit.isEmpty()) {
+                V u = toVisit.remove();
+
+                /* get neighbors */
+                for (V v : G.outNeighbors(u)) {
+
+                    /*make sure we don't traverse backwards */
+                    if (!backTrack.get(u).equals(v)) {
+
+                        /* get cost of edge */
+                        double edgeCost = G.getLabel(u, v);
+
+                        /* get costs of previous vertex */
+                        double predecessor = costs.get(u);
+
+                        /* get current cost of vertex. if nonexistent, set to infinity */
+                        double currentCost = costs.getOrDefault(v, Double.MAX_VALUE);
+
+                        /* if cost is better than saved score, save it */
+                        if (predecessor + edgeCost < currentCost) {
+                            costs.remove(v);
+                            costs.put(v, predecessor+edgeCost);
+
+                            /* update the backtrack to reflect new min-cost neighbor */
+                            backTrack.remove(u);
+                            backTrack.put(u, v);
+
+                            /* get next neighbors of current vertex and add to queue */
+                            for (V next : G.outNeighbors(v)) {
+                                if (!next.equals(u)) {
+                                    nextVertices.add(next);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            /* reset queue to next vertices in line */
+            toVisit = nextVertices;
+        }
+        /* return cost start to end, or INFINITY if no path found */
+        return costs;
     }
 
-    public void BellmanFord() {
-        ;
+    /**
+     * Dijkstra's algorithm for single-source shortest paths.
+     * Returns the shortest path from start vertex to end vertex.
+     * To compute costs, use Dijkstra().
+     * @param G: Graph
+     * @param start: start vertex
+     * @return Map of costs of vertices from start
+     */
+    public List<V> DijkstraPath(Graph<V, ? extends Double> G, V start, V end) {
+        int n = G.numVertices();                    // get num of vertices in Graph
+        Map<V, Double> costs = new HashMap<>();     // initialize map of costs
+        Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
+
+        /* save start vertex to back-track */
+        backTrack.put(start, null);
+        costs.put(start, 0.0);
+
+        /* initialize queue of vertices to visit */
+        Queue<V> toVisit = new LinkedList<>();
+
+        /* add start vertex */
+        toVisit.add(start);
+
+        /*
+         * loop from 1 to n-1
+         * since vertices can only appear once in a shortest path.
+         */
+        for (int i=1; i<n; i++) {
+
+            /* track queue of next vertices */
+            Queue<V> nextVertices = new LinkedList<>();
+
+            /* while current queue still has vertices, visit them */
+            while (!toVisit.isEmpty()) {
+                V u = toVisit.remove();
+
+                /* get neighbors */
+                for (V v : G.outNeighbors(u)) {
+
+                    /*make sure we don't traverse backwards */
+                    if (!backTrack.get(u).equals(v)) {
+
+                        /* get cost of edge */
+                        double edgeCost = G.getLabel(u, v);
+
+                        /* get costs of previous vertex */
+                        double predecessor = costs.get(u);
+
+                        /* get current cost of vertex. if nonexistent, set to infinity */
+                        double currentCost = costs.getOrDefault(v, Double.MAX_VALUE);
+
+                        /* if cost is better than saved score, save it */
+                        if (predecessor + edgeCost < currentCost) {
+                            costs.remove(v);
+                            costs.put(v, predecessor+edgeCost);
+
+                            /* update the backtrack to reflect new min-cost neighbor */
+                            backTrack.remove(u);
+                            backTrack.put(u, v);
+
+                            /* get next neighbors of current vertex and add to queue */
+                            for (V next : G.outNeighbors(v)) {
+                                if (!next.equals(u)) {
+                                    nextVertices.add(next);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            /* reset queue to next vertices in line */
+            toVisit = nextVertices;
+        }
+
+        /* rebuild path */
+        Stack<V> path = new Stack<>();
+
+        /* push final vertex to path */
+        path.push(end);
+
+        /* backTrack and prepend vertices to path */
+        V vertex = end;
+        while (vertex != null) {
+            V pred = backTrack.get(vertex);
+            if (pred != null) {
+                path.push(pred);
+            }
+            vertex = pred;
+        }
+
+        /* return the path */
+        return path;
+    }
+
+    public Map<V, Double> BellmanFord(Graph<V, ? extends Double> G, V start) {
+
+        /* initialize variables */
+        int n = G.numVertices();
+        List<V> vertices = (List<V>) G.vertices();
+        Map<V, Double> costs = new HashMap<>();
+        costs.put(start, 0.0);
+
+        /* initialize table */
+        double[][] OPT = new double[n][n+1];
+
+        /* initialize zero-th iteration */
+        for (int i=1; i<=n; i++) {
+            OPT[0][i] = Double.MAX_VALUE;
+        }
+
+        /* start vertex to itself is 0 */
+        OPT[0][vertices.indexOf(start)+1] = 0;
+
+        /* loop 1 to n-1 times */
+        for (int i=1; i<n; i++) {
+
+            for (V currentVertex : G.vertices()) {                              // for each vertex...
+                int index = vertices.indexOf(currentVertex);
+                OPT[i][index] = OPT[i-1][index];                                // get value from previous iteration
+            }
+            for (V currentVertex : G.vertices()) {                              // for each vertex...
+                int index = vertices.indexOf(currentVertex);
+                for (V nextVertex : G.inNeighbors(currentVertex)) {             // get outbound neighbors
+                    int nextIndex = vertices.indexOf(nextVertex);
+                    double transition = G.getLabel(currentVertex, nextVertex);
+
+                    /*
+                     * if path from current vertex improves min cost to neighbor,
+                     * perform the improvement and save the new cost
+                     */
+
+                    if (OPT[i-1][index] + index < OPT[i][nextIndex]) {
+                        OPT[i][nextIndex] = OPT[i-1][index] + transition;
+                        costs.remove(nextVertex);
+                        costs.put(nextVertex, OPT[i][nextIndex]);
+                    }
+                }
+            }
+        }
+
+        /* return calculated costs */
+        return costs;
     }
     public void AStar() {
         ;
