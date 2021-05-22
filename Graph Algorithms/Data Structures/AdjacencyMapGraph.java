@@ -1,6 +1,4 @@
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -17,7 +15,7 @@ import java.util.Map;
 
 public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
     protected Map<V, Map<V, E>> out;		// from v1 to v2: { v1 -> { v2 -> edge } }
-    protected Map<V, Map<V, E>> in;		// to v1 from v2: { v1 -> { v2 -> edge } }
+    protected Map<V, Map<V, E>> in;		    // to v1 from v2: { v1 -> { v2 -> edge } }
 
     /**
      * Default constructor, creating an empty graph
