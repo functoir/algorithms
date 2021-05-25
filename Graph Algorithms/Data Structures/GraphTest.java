@@ -24,7 +24,7 @@ public class GraphTest {
                 if (i % 2 == 0 && !u.equals("Z")) {
                     network.insertDirected(u, "Z", Math.max(1, random.nextInt(10)));
                 }
-                else if (!u.equals("A")){
+                else if (!v.equals("A")){
                     network.insertDirected("A", v, Math.max(1, random.nextInt(10)));
                 }
             }
@@ -37,19 +37,23 @@ public class GraphTest {
 
         System.out.println(GraphLib.dfs(network, "A"));
 
-        for (int i=0; i<3; i++) {
-            for (String v1 : network.vertices()) {
-                for (String v2 : network.vertices()) {
-                    if (!v2.equals(v1)) {
-                        System.out.println(GraphLib.Dijkstra(network, v1));
-                        System.out.println(GraphLib.DijkstraPath(network, v1, v2));
-                        System.out.println(GraphLib.Dijkstra(network, v2));
-                        System.out.println(GraphLib.DijkstraPath(network, v2, v1));
-                        break;
-                    }
-                }
-            }
-        }
+//        for (int i=0; i<3; i++) {
+//            for (String v1 : network.vertices()) {
+//                for (String v2 : network.vertices()) {
+//                    if (!v2.equals(v1)) {
+//                        System.out.println(GraphLib.Dijkstra(network, v1));
+//                        System.out.println(GraphLib.DijkstraPath(network, v1, v2));
+//                        System.out.println(GraphLib.BellmanFord(network, "A"));
+////                        System.out.println(GraphLib.AStar(network, v1, v2));
+//                        System.out.println(GraphLib.Dijkstra(network, v2));
+//                        System.out.println(GraphLib.DijkstraPath(network, v2, v1));
+////                        System.out.println(GraphLib.AStar(network, v2, v1));
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+        System.out.println(GraphLib.BellmanFord(network, "A"));
 
 
         Graph<String, Integer> test = new AdjacencyMapGraph<>();
