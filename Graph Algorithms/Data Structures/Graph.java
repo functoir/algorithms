@@ -1,3 +1,5 @@
+import java.util.Map;
+
 /**
  * FILE: Graph.java
  * Defines an interface for Graphs, with both directed and undirected edge capabilities.
@@ -22,6 +24,9 @@ public interface Graph<V,E> {
 
     /** Out-degree of vertex in Graph */
     public int outDegree(V v);
+
+    /** Get the overall popularity of a vertex */
+    public Map<V, Integer> getPopularities();
 
     /** In-degree of vertex in Graph */
     public int inDegree(V v);

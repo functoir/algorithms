@@ -19,6 +19,7 @@ import java.util.Map;
 public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
     protected Map<V, Map<V, E>> out;		// out-edges v1 to v2: { v1 -> { v2 -> edge } }
     protected Map<V, Map<V, E>> in;		    // in-edges v2: { v1 -> { v2 -> edge } }
+    protected Map<V, Integer> popularity;   // For A* search; check how "popular" a vertex is.
 
     /**
      * Default constructor, creating an empty graph
@@ -26,6 +27,7 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
     public AdjacencyMapGraph() {
         in = new HashMap<>();
         out = new HashMap<>();
+        popularity = new HashMap<>();
     }
 
     /**
@@ -77,6 +79,10 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
      */
     public int inDegree(V v) {
         return in.get(v).size();
+    }
+
+    public Map<V, Integer> getPopularities() {
+        return this.popularity;
     }
 
     /**
@@ -137,6 +143,8 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
     public void insertDirected(V u, V v, E e) {
         out.get(u).put(v, e);
         in.get(v).put(u, e);
+        popularity.put(u, popularity.getOrDefault(u, 0) + 1);
+        popularity.put(v, popularity.getOrDefault(v, 0) + 1);
     }
 
     /**
@@ -149,6 +157,8 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
         // insert in both directions
         insertDirected(u, v, e);
         insertDirected(v, u, e);
+        popularity.put(u, popularity.getOrDefault(u, 0) + 2);
+        popularity.put(v, popularity.getOrDefault(v, 0) + 2);
     }
 
     /**
@@ -176,6 +186,9 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
     public void removeDirected(V u, V v) {
         in.get(v).remove(u);
         out.get(u).remove(v);
+
+        popularity.put(u, popularity.get(u) - 1);
+        popularity.put(v, popularity.get(v) - 1);
     }
 
     /**
@@ -187,6 +200,8 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
         // remove in both directions
         removeDirected(u, v);
         removeDirected(v, u);
+        popularity.put(u, popularity.get(u) - 2);
+        popularity.put(v, popularity.get(v) - 2);
     }
 
     /**
