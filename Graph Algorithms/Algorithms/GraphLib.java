@@ -1,3 +1,4 @@
+//import net.datastructures.Graph;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
@@ -65,7 +66,7 @@ public class GraphLib {
         Stack<V> stack = new Stack<>();
 
         backTrack.put(start, null);     // add start to backtrack
-        visited.add(start);             // mark start as visited
+//        visited.add(start);             // mark start as visited
 
         stack.push(start);                          // add start to stack
         while (!stack.isEmpty()) {                  // while stack is not empty...
@@ -89,10 +90,11 @@ public class GraphLib {
      * Kahn's topological sorting algorithm
      * Returns a topological ordering of a Graph
      *
-     * @param G: Graph to sort
+     * @param G : Graph to sort
      * @return Queue, a topological ordering of a Graph, or null if Graph is cyclic
      */
-    public static <V,E> Queue<V> TopoSort(Graph<V,E> G) {
+    public static <V,E> Object TopoSort(Graph<V,E> G) {
+        System.out.println("\nRunning Topological Sort on the Graph...\n");
 
         /*
          * create copy of Graph
@@ -103,13 +105,20 @@ public class GraphLib {
         Queue<V> ordering = new LinkedList<>();
 
         /* while Graph still has vertices */
-        int size;                                   // check current number of vertices in Graph
-        while( (size = copy.numVertices()) > 0) {   // while Graph still has vertices...
+        int size = copy.numVertices();                                 // check current number of vertices in Graph
+        while(size > 0) {   // while Graph still has vertices...
+            int current = size;
+            Set<V> removed = new HashSet<>();
             for (V v : copy.vertices()) {           // loop over vertices
                 if (copy.inDegree(v) == 0) {        // add all that have no inward edges to the ordering
-                    ordering.add(v);
-                    copy.removeVertex(v);           // delete them from Graph.
+                    if (ordering.add(v)) {
+                        removed.add(v);             // mark for removal
+                    }
                 }
+            }
+            for (V v : removed) {
+                copy.removeVertex(v);           // delete them from Graph.
+                size--;                     // decrement size
             }
 
             /*
@@ -117,9 +126,8 @@ public class GraphLib {
              * no vertex was deleted, meaning all vertices have a dependency.
              * Graph MUST be cyclic.
              */
-            if (size == copy.numVertices()) {
-                System.out.println("Graph is cyclic.\n");
-                return null;
+            if (size == current) {
+                return "Graph is cyclic.";
             }
         }
 
@@ -198,67 +206,45 @@ public class GraphLib {
      * Returns a Map of all the other vertices connected to the start vertex
      * and their respective shortest costs from start vertices.
      * To compute actual shortest path, use DijkstraPath().
-     * @param G: Graph implementing some vertex type and some edge type.
+     * @param G : Graph implementing some vertex type and some edge type.
      *         Edge type must extend "Double" datatype (i.e. must be a number).
-     * @param start: start vertex
+     * @param start : start vertex
      * @return Map of costs of vertices from start
      */
-    public static <V> Map<V, Double> Dijkstra(Graph<V, ? extends Double> G, V start) {
+    public static <V,E> Map<V, Integer> Dijkstra(Graph<V,E> G, V start) {
+        System.out.println("Dijkstra calculating costs from '" + start + "'." );
         int n = G.numVertices();                    // get num of vertices in Graph
-        Map<V, Double> costs = new HashMap<>();     // initialize map of costs
+        Map<V,Integer> costs = new HashMap<>();     // initialize map of costs
 
-        /* save start vertex */
-        costs.put(start, 0.0);
-
-        /* initialize queue of vertices to visit */
-        Queue<V> toVisit = new LinkedList<>();
-
-        /* add start vertex */
-        toVisit.add(start);
+        /* Initialize the priority queue */
+        Queue<V> queue = new PriorityQueue<>(G.numVertices(), Comparator.comparingInt(costs::get));
 
         /*
-         * loop from 1 to n-1
-         * since vertices can only appear once in a shortest path.
+         * Add all vertices to priority queue
          */
-        for (int i=1; i<n; i++) {
+        for (V v : G.vertices()) {
+            if (v != start) {
+                costs.put(v, Integer.MAX_VALUE);
+                queue.add(v);
+            }
+        }
+        costs.put(start, 0);
+        queue.add(start);
 
-            /* track queue of next vertices */
-            Queue<V> nextVertices = new LinkedList<>();
-
-            /* while current queue still has vertices, visit them */
-            while (!toVisit.isEmpty()) {
-                V u = toVisit.remove();
-
-                /* get neighbors */
-                for (V v : G.outNeighbors(u)) {
-
-                    /* get cost of edge */
-                    double edgeCost = G.getLabel(u, v);
-
-                    /* get costs of previous vertex */
-                    double predecessor = costs.get(u);
-
-                    /* get current cost of vertex. if nonexistent, set to infinity */
-                    double currentCost = costs.getOrDefault(v, Double.MAX_VALUE);
-
-                    /* if cost is better than saved score, save it */
-                    if (predecessor + edgeCost < currentCost) {
-                        costs.remove(v);
-                        costs.put(v, predecessor+edgeCost);
-
-                        /* get next neighbors of current vertex and add to queue */
-                        for (V next : G.outNeighbors(v)) {
-                            if (!next.equals(u)) {
-                                nextVertices.add(next);
-                            }
-                        }
-                    }
+        /* repeatedly extract min until queue is empty */
+        while (!queue.isEmpty()) {
+            V current = queue.remove();
+            int curr = costs.get(current);
+            for (V next : G.outNeighbors(current)) {
+                int currToNext = (int) G.getLabel(current, next);
+                if ((curr + currToNext < costs.get(next))) {
+                    costs.put(next, (curr + currToNext));
+                    queue.remove(next);
+                    queue.add(next);
+                    System.out.println(next + " : " + (curr + currToNext));
                 }
             }
-            /* reset queue to next vertices in line */
-            toVisit = nextVertices;
         }
-        /* return cost start to end, or INFINITY if no path found */
         return costs;
     }
 
@@ -266,87 +252,70 @@ public class GraphLib {
      * Dijkstra's algorithm for single-source shortest paths.
      * Returns the shortest path from start vertex to end vertex.
      * To compute costs, use Dijkstra().
-     * @param G: Graph
-     * @param start: start vertex
+     * @param G : Graph
+     * @param start : start vertex
+     * @param end : The goal vertex
      * @return Map of costs of vertices from start
      */
-    public static <V> List<V> DijkstraPath(Graph<V, ? extends Double> G, V start, V end) {
+    public static <V,E> Object DijkstraPath(Graph<V,E> G, V start, V end) {
+        System.out.println("Dijkstra Pathfinding from '" + start + "' to '" + end + "'." );
         int n = G.numVertices();                    // get num of vertices in Graph
-        Map<V, Double> costs = new HashMap<>();     // initialize map of costs
+        Map<V, Integer> costs = new HashMap<>();     // initialize map of costs
         Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
 
         /* save start vertex to back-track */
         backTrack.put(start, null);
-        costs.put(start, 0.0);
 
-        /* initialize queue of vertices to visit */
-        Queue<V> toVisit = new LinkedList<>();
-
-        /* add start vertex */
-        toVisit.add(start);
+        /* Initialize the priority queue */
+        Queue<V> queue = new PriorityQueue<>(G.numVertices(), Comparator.comparingInt(costs::get));
 
         /*
-         * loop from 1 to n-1
-         * since vertices can only appear once in a shortest path.
+         * Add all vertices to priority queue
          */
-        for (int i=1; i<n; i++) {
+        for (V v : G.vertices()) {
+            if (v != start) {
+                costs.put(v, Integer.MAX_VALUE);
+                queue.add(v);
+            }
+        }
+        costs.put(start, 0);
+        queue.add(start);
 
-            /* track queue of next vertices */
-            Queue<V> nextVertices = new LinkedList<>();
+        /* repeatedly extract min until queue is empty */
+        while (!queue.isEmpty()) {
+            V current = queue.remove();
+            int curr = costs.get(current);
+            for (V next : G.outNeighbors(current)) {
+                int currToNext = (int) G.getLabel(current, next);
+                if ((curr + currToNext < costs.get(next))) {
+                    costs.put(next, (curr + currToNext));
+                    queue.remove(next);
+                    queue.add(next);
+                    backTrack.put(next, current);
 
-            /* while current queue still has vertices, visit them */
-            while (!toVisit.isEmpty()) {
-                V u = toVisit.remove();
-
-                /* get neighbors */
-                for (V v : G.outNeighbors(u)) {
-
-                    /*make sure we don't traverse backwards */
-                    if (!backTrack.get(u).equals(v)) {
-
-                        /* get cost of edge */
-                        double edgeCost = G.getLabel(u, v);
-
-                        /* get costs of previous vertex */
-                        double predecessor = costs.get(u);
-
-                        /* get current cost of vertex. if nonexistent, set to infinity */
-                        double currentCost = costs.getOrDefault(v, Double.MAX_VALUE);
-
-                        /* if cost is better than saved score, save it */
-                        if (predecessor + edgeCost < currentCost) {
-                            costs.remove(v);
-                            costs.put(v, predecessor+edgeCost);
-
-                            /* update the backtrack to reflect new min-cost neighbor */
-                            backTrack.remove(u);
-                            backTrack.put(u, v);
-
-                            /* get next neighbors of current vertex and add to queue */
-                            for (V next : G.outNeighbors(v)) {
-                                if (!next.equals(u)) {
-                                    nextVertices.add(next);
-                                }
-                            }
-                        }
-                    }
                 }
             }
-            /* reset queue to next vertices in line */
-            toVisit = nextVertices;
+            if (current == end) {
+                break;
+            }
+            else if (costs.get(current) == Integer.MAX_VALUE) {
+                return "not found.";
+            }
         }
 
         /* rebuild path */
-        Stack<V> path = new Stack<>();
+        List<V> path = new LinkedList<>();
 
         /* backTrack and prepend vertices to path */
-        V vertex = end;
-        while (vertex != null) {
-            path.push(vertex);
-            vertex = backTrack.get(vertex);
+//        V vertex = end;
+        for (V vertex=end; vertex != null; vertex=backTrack.get(vertex)) {
+            if (backTrack.get(vertex) != null) {
+                System.out.println(vertex + " was discovered from " + backTrack.get(vertex));
+            }
+            path.add(0, vertex);
         }
 
-        /* return the path */
+        /* return reconstructed path */
         return path;
     }
 
@@ -495,8 +464,8 @@ public class GraphLib {
 
 
 
-    public static <V> void AStar(Graph <V, ? extends Comparable<?>> G, V start, V end) {
-        ;
+    public static <V> void AStar(Graph <V, ? extends Double> G, V start, V end) {
+//        Queue<V> toVisit = new PriorityQueue<V>(heuristic(G, v));
     }
 
     public static <V,E> @NotNull
@@ -528,4 +497,22 @@ public class GraphLib {
         /* return the copy of the Graph */
         return copy;
     }
+//
+//    private static <V> double heuristic(Graph<V,? extends Double> G, V v) {
+//        int costs = G.inDegree(v) + G.outDegree(v);
+//        double counts = 0.0;
+//        for (V next : G.outNeighbors(v)) {
+//            costs += G.getLabel(v, next);
+//            count++;
+//        }
+//        for (V pred : G.inNeighbors(v)) {
+//            costs += G.getLabel(pred, v);
+//            count++;
+//        }
+//
+//        return (costs / count);
+//
+//    }
+
+
 }

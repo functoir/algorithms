@@ -194,6 +194,14 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
      * @return string representation of Graph
      */
     public String toString() {
-        return "Vertices: " + out.keySet().toString() + "\nOut edges: " + out.toString();
+        StringBuilder str = new StringBuilder();
+        for (V u : this.vertices()) {
+            str.append(u).append(" -> { ");
+            for (V v : this.outNeighbors(u)) {
+                str.append(" ").append(v).append("=").append(this.getLabel(u, v)).append(", ");
+            }
+            str.append("}\n");
+        }
+        return String.valueOf(str);
     }
 }
