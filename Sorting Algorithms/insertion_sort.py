@@ -1,5 +1,5 @@
 from timeit import timeit
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 from numpy.random import randint
 
 

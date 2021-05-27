@@ -1,7 +1,6 @@
 from timeit import timeit
 import matplotlib.pyplot as plt
 from numpy.random import randint
-from insertion_sort import *
 
 
 def radix_sort(array: list) -> list:
@@ -62,10 +61,9 @@ if __name__ == '__main__':
     # Add code to do the rest of this problem
     sizes: list = []
     radix_runtimes: list = []
-    insertion_runtimes = []
     gradients: list = []
 
-    ns = [2 ** t for t in range(3, 12)]
+    ns = [2 ** t for t in range(3, 20)]
 
     for n in ns:
         print(f"Generating and sorting data with n = {n}")
@@ -73,8 +71,6 @@ if __name__ == '__main__':
         # print(data)
         sizes.append(n)
         radix_runtimes.append(timeit("radix_sort(data)",
-                                     number=10, globals=globals()))
-        insertion_runtimes.append(timeit("insertion_sort(data)",
                                      number=10, globals=globals()))
         gradients.append(radix_runtimes[-1] / sizes[-1])
 
@@ -84,12 +80,11 @@ if __name__ == '__main__':
     plt.xlabel("Size of array")
     plt.ylabel("Runtime")
     plt.plot(sizes, radix_runtimes, "--ro")
-    plt.plot(sizes, insertion_runtimes, "--bo")
 
-    # plt.subplot(122)
-    # plt.grid(True, which="both")
-    # plt.xlabel("Size of array")
-    # plt.ylabel("Gradient")
-    # plt.plot(sizes, gradients, "--b+")
+    plt.subplot(122)
+    plt.grid(True, which="both")
+    plt.xlabel("Size of array")
+    plt.ylabel("Gradient")
+    plt.plot(sizes, gradients, "--b+")
     plt.show()
     print("\nFINISHED.\n")
