@@ -1,4 +1,3 @@
-//import net.datastructures.Graph;
 import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
@@ -59,6 +58,7 @@ public class GraphLib {
      */
     public static <V,E> Map<V,V> dfs(Graph<V,E> G, V start) {
         System.out.println("Depth-First Search from " + start);
+        int time = 0;
 
         /* initialize variables */
         Map<V,V> backTrack = new HashMap<>();
@@ -140,15 +140,20 @@ public class GraphLib {
     /**
      * Floyd-Warshall's All-Pairs-Shortest-Paths algorithm
      * to compute all shortest paths in a Graph.
-     * @param G: Graph implementing some vertex type and some edge type.
+     * @param G : Graph implementing some vertex type and some edge type.
      *         Edge type must extend "Double" datatype (i.e. must be a number).
      * @return Map of each vertex to Map of adjacent vertices, costs
      *          {vertex -> {adjacent vertex -> shortest path}}
+     *          TODO: NOTE: We drop all infinity edges. If a vertex u does not
+     *           have a minimum cost value to another vertex v in the Graph
+     *           then u is unreachable from v.
      */
-    public static <V> Map<V, Map<V, Double>> FloydWarshallAPSP(Graph<V, ? extends Double> G) {
+    public static <V,E> Map<V, Map<V, Integer>> FloydWarshallAPSP(Graph<V,E> G) {
+        System.out.println("Running Floyd Warshall APSP on the Graph... \n");
         int n = G.numVertices();
-        double[][][] OPT = new double[n+1][n+1][n+1];
-        List<V> vertices = (List<V>) G.vertices();
+        int[][][] OPT = new int[n+1][n+1][n+1];
+        List<V> vertices = new ArrayList<>();
+        G.vertices().forEach(vertices::add);
 
         /* initial step: calculate costs direct connections */
         for (int i=1; i<=n; i++) {
@@ -162,7 +167,10 @@ public class GraphLib {
                     V u = vertices.get(i-1);
                     V v = vertices.get(j-1);
                     if (G.hasEdge(u, v)) {
-                        OPT[i][j][0] = G.getLabel(u, v);
+                        OPT[i][j][0] = (int)G.getLabel(u, v);
+                    }
+                    else {
+                        OPT[i][j][0] = Integer.MAX_VALUE;
                     }
                 }
             }
@@ -172,28 +180,38 @@ public class GraphLib {
         for (int k=1; k<=n; k++) {
             for (int i=1; i<=n; i++) {
                 for (int j=1; j<=n; j++) {
-                    OPT[i][j][k] = Math.min(OPT[i][j][k-1], OPT[i][k][k-1]);
-                    OPT[i][j][k] = Math.min(OPT[i][j][k], OPT[k][j][k-1]);
+                    if (OPT[i][j][k-1] == Integer.MAX_VALUE) {
+                        if (OPT[i][k][k-1] == Integer.MAX_VALUE || OPT[k][j][k-1] == Integer.MAX_VALUE ) {
+                            OPT[i][j][k] = Integer.MAX_VALUE;
+                        }
+                        else {
+                            OPT[i][j][k] = OPT[i][k][k-1] + OPT[k][j][k-1];
+                        }
+                    }
+                    else if (OPT[i][k][k-1] == Integer.MAX_VALUE || OPT[k][j][k-1] == Integer.MAX_VALUE ) {
+                        OPT[i][j][k] = OPT[i][j][k-1];
+                    }
+                    else {
+                        OPT[i][j][k] = Math.min(OPT[i][j][k-1], OPT[i][k][k-1] + OPT[k][j][k-1]);
+                    }
                 }
             }
         }
 
         /* Build Mapping of all costs */
-        Map<V,Map<V,Double>> costs = new HashMap<>();
+        Map<V,Map<V,Integer>> costs = new HashMap<>();
 
         /* For each vertex */
-        for (int i=1; i<n; i++) {
-
-            /* For each other vertex in Graph */
-            V u = vertices.get(i);
-            for (int j = 0; j < n; j++) {
-
-                /* Get computed cost and save */
-                V v = vertices.get(j);
-                double cost = OPT[i][j][n];
-                Map<V, Double>currentCosts = costs.getOrDefault(u, new HashMap<>());
-                currentCosts.put(v, cost);
-                costs.put(u, currentCosts);
+        for (V u : G.vertices()) {
+            int index = vertices.indexOf(u) + 1;
+            for (V v : G.vertices()) {
+                int nextIndex = vertices.indexOf(v) + 1;
+                int cost = OPT[index][nextIndex][n];
+                if (cost != Integer.MAX_VALUE) {
+                    Map<V, Integer>currentCosts = costs.getOrDefault(u, new HashMap<>());
+                    currentCosts.put(v, cost);
+                    costs.put(u, currentCosts);
+                }
             }
         }
 
@@ -213,7 +231,7 @@ public class GraphLib {
      */
     public static <V,E> Map<V, Integer> Dijkstra(Graph<V,E> G, V start) {
         System.out.println("Dijkstra calculating costs from '" + start + "'." );
-        int n = G.numVertices();                    // get num of vertices in Graph
+        // get num of vertices in Graph
         Map<V,Integer> costs = new HashMap<>();     // initialize map of costs
 
         /* Initialize the priority queue */
@@ -234,18 +252,21 @@ public class GraphLib {
         /* repeatedly extract min until queue is empty */
         while (!queue.isEmpty()) {
             V current = queue.remove();
-            int curr = costs.get(current);
-            for (V next : G.outNeighbors(current)) {
-                if (next != current) {
-                    int currToNext = (int) G.getLabel(current, next);
-                    if ((curr + currToNext < costs.get(next))) {
-                        costs.put(next, (curr + currToNext));
-                        queue.remove(next);
-                        queue.add(next);
-                        System.out.println(next + " : " + (curr + currToNext));
-                    }
+            int curr;
+            if ( (curr = costs.get(current)) != Integer.MAX_VALUE) {
+                for (V next : G.outNeighbors(current)) {
+                    if (next != current) {
+                        int currToNext = (int) G.getLabel(current, next);
+                        if ((curr + currToNext < costs.get(next))) {
+                            costs.put(next, (curr + currToNext));
+                            queue.remove(next);
+                            queue.add(next);
+                            System.out.println(next + " : " + (curr + currToNext));
+                        }
 
+                    }
                 }
+
             }
         }
         return costs;
@@ -285,35 +306,35 @@ public class GraphLib {
         queue.add(start);
 
         /* repeatedly extract min until queue is empty */
-        int steps = 0;
         while (!queue.isEmpty()) {
-            steps++;
             /* extract min from queue */
             V current = queue.remove();
 
             /* get score of current */
-            int curr = costs.get(current);
+            int curr;
+            if ( ( curr = costs.get(current)) != Integer.MAX_VALUE) {
+                /* for each adjacent vertex, update cost if necessary */
+                for (V next : G.outNeighbors(current)) {
+                    if (next != current) {
+                        int currToNext = (int) G.getLabel(current, next);
+                        if ((curr + currToNext < costs.get(next))) {
+                            costs.put(next, (curr + currToNext));
+                            queue.remove(next);
+                            queue.add(next);
 
-            /* for each adjacent vertex, update cost if necessary */
-            for (V next : G.outNeighbors(current)) {
-                if (next != current) {
-                    int currToNext = (int) G.getLabel(current, next);
-                    if ((curr + currToNext < costs.get(next))) {
-                        costs.put(next, (curr + currToNext));
-                        queue.remove(next);
-                        queue.add(next);
-
-                        /* if update done, remember the back-pointer */
-                        backTrack.put(next, current);
+                            /* if update done, remember the back-pointer */
+                            backTrack.put(next, current);
+                        }
                     }
                 }
+                if (current == end) {
+                    break;
+                }
+                else if (costs.get(current) == Integer.MAX_VALUE) {
+                    return "not found.";
+                }
             }
-            if (current == end) {
-                break;
-            }
-            else if (costs.get(current) == Integer.MAX_VALUE) {
-                return "not found.";
-            }
+
         }
 
         /* rebuild path */
@@ -322,12 +343,8 @@ public class GraphLib {
         /* backTrack and prepend vertices to path */
 //        V vertex = end;
         for (V vertex=end; vertex != null; vertex=backTrack.get(vertex)) {
-            if (backTrack.get(vertex) != null) {
-                System.out.println(vertex + " was discovered from " + backTrack.get(vertex));
-            }
             path.add(0, vertex);
         }
-        System.out.println("Steps: " + steps);
 
         /* return reconstructed path */
         return path;
@@ -366,24 +383,25 @@ public class GraphLib {
         for (int i=1; i<n; i++) {
 
             for (V currentVertex : G.vertices()) {                              // for each vertex...
-                int index = vertices.indexOf(currentVertex);
-                OPT[i][index] = OPT[i-1][index];                                // get value from previous iteration
+                int currentIndex = vertices.indexOf(currentVertex) + 1;
+                OPT[i][currentIndex] = OPT[i-1][currentIndex];                   // get value from previous iteration
             }
             for (V currentVertex : G.vertices()) {                              // for each vertex...
-                int index = vertices.indexOf(currentVertex) + 1;
+                int currentIndex = vertices.indexOf(currentVertex) + 1;
                 for (V nextVertex : G.outNeighbors(currentVertex)) {             // get outbound neighbors
                     int nextIndex = vertices.indexOf(nextVertex) + 1;
-                    int transition = (int)G.getLabel(currentVertex, nextVertex);
+                    int transition = (int) G.getLabel(currentVertex, nextVertex);
 
                     /*
                      * if path from current vertex improves min cost to neighbor,
                      * perform the improvement and save the new cost
                      */
 
-                    if (OPT[i-1][index] + transition < OPT[i][nextIndex]) {
-                        OPT[i][nextIndex] = OPT[i-1][index] + transition;
-//                        costs.remove(nextVertex);
+                    if ( (OPT[i-1][currentIndex] != Integer.MAX_VALUE) &&
+                            (OPT[i-1][currentIndex]) + transition < OPT[i][nextIndex]) {
+                        OPT[i][nextIndex] = OPT[i-1][currentIndex] + transition;
                         costs.put(nextVertex, OPT[i][nextIndex]);
+                        System.out.println(nextVertex + " : " + OPT[i][nextIndex]);
                     }
                 }
             }
@@ -397,28 +415,28 @@ public class GraphLib {
      * Bellman-Ford algorithm for computing shortest paths from given vertex.
      * @param G Graph. Must implement edge labels as a numerical type.
      * @param start start vertex
-     * @param end end vertex
      * @return Ordered list representing the shortest pathway from start vertex to end vertex.
      * Returns null if no path found.
      */
-    public static <V> List<V> BellmanFordPath(Graph<V, ? extends Double> G, V start, V end) {
+    public static <V,E> Map<V, List<V>> BellmanFordSSSP(Graph<V,E> G, V start) {
+
+        System.out.println("Finding all shortest paths from '" + start + "' using BellmanFord SSSP.");
 
         /* initialize variables */
         int n = G.numVertices();
-        List<V> vertices = (List<V>) G.vertices();
-        Map<V, Double> costs = new HashMap<>();
+        List<V> vertices = new ArrayList<>();
+        G.vertices().forEach(vertices::add);
         Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
-        costs.put(start, 0.0);
 
         /* initialize table */
-        double[][] OPT = new double[n][n+1];
+        int[][] OPT = new int[n][n+1];
 
         /* save start vertex to back-track */
         backTrack.put(start, null);
 
         /* initialize zero-th iteration */
         for (int i=1; i<=n; i++) {
-            OPT[0][i] = Double.MAX_VALUE;
+            OPT[0][i] = Integer.MAX_VALUE;
         }
 
         /* start vertex to itself is 0 */
@@ -428,58 +446,64 @@ public class GraphLib {
         for (int i=1; i<n; i++) {
 
             for (V currentVertex : G.vertices()) {                              // for each vertex...
-                int index = vertices.indexOf(currentVertex);
+                int index = vertices.indexOf(currentVertex) + 1;
                 OPT[i][index] = OPT[i-1][index];                                // get value from previous iteration
             }
             for (V currentVertex : G.vertices()) {                              // for each vertex...
-                int index = vertices.indexOf(currentVertex);
-                for (V nextVertex : G.inNeighbors(currentVertex)) {             // get outbound neighbors
-                    int nextIndex = vertices.indexOf(nextVertex);
-                    double transition = G.getLabel(currentVertex, nextVertex);
+                int currentIndex = vertices.indexOf(currentVertex) + 1;
+                for (V nextVertex : G.outNeighbors(currentVertex)) {             // get outbound neighbors
+                    int nextIndex = vertices.indexOf(nextVertex) + 1;
+                    int transition = (int) G.getLabel(currentVertex, nextVertex);
 
                     /*
                      * if path from current vertex improves min cost to neighbor,
                      * perform the improvement and save the new cost
                      */
 
-                    if (OPT[i-1][index] + index < OPT[i][nextIndex]) {
+                    if ( (OPT[i-1][currentIndex] != Integer.MAX_VALUE) &&
+                            (OPT[i-1][currentIndex]) + transition < OPT[i][nextIndex]) {
 
                         /* update cost */
-                        OPT[i][nextIndex] = OPT[i-1][index] + transition;
-                        costs.remove(nextVertex);
-                        costs.put(nextVertex, OPT[i][nextIndex]);
+                        OPT[i][nextIndex] = OPT[i-1][currentIndex] + transition;
 
                         /* update backTrack */
-                        backTrack.remove(nextVertex);
                         backTrack.put(nextVertex, currentVertex);
                     }
                 }
             }
         }
 
-        /* if cost of end vertex is infinity, no path eas found */
-        if (costs.get(end) == Double.MAX_VALUE) {
-            System.err.println("No path was found  from " + start + " to " + end + ".");
-            return null;
-        }
-
         /* rebuild path */
-        Stack<V> path = new Stack<>();
+        Map<V, List<V>> paths = new HashMap<>();
 
-        /* backTrack and prepend vertices to path */
-        V vertex = end;
-        while (vertex != null) {
-            path.push(vertex);
-            vertex = backTrack.get(vertex);
+        for (V v : G.vertices()) {
+            /* backTrack and prepend vertices to path */
+            List<V> path = new LinkedList<>();
+            V vertex = v;
+            if (vertex.equals(start)) {
+                path.add((V) "start vertex");
+            }
+            /* if immediate predecessor is null, no path exists */
+            else if (backTrack.get(vertex) == null) {
+                path.add((V) "no path");
+            }
+            else {
+                while (vertex != null) {
+                    path.add(0, vertex);
+                    vertex = backTrack.get(vertex);
+                }
+            }
+            paths.put(v, path);
         }
 
-        /* return the path */
-        return path;
+
+        /* return the Dictionary of shortest paths */
+        return paths;
     }
 
     /**
      * Dijkstra's algorithm for single-source shortest paths.
-     * Returns the shortest path from start vertex to end vertex.
+     * Returns the shortest path from start vertex to every other vertex in Graph.
      * To compute costs, use Dijkstra().
      * @param G : Graph
      * @param start : start vertex
@@ -520,9 +544,7 @@ public class GraphLib {
         queue.add(start);
 
         /* repeatedly extract min until queue is empty */
-        int steps = 0;
         while (!queue.isEmpty()) {
-            steps++;
             /* extract min from queue */
             V current = queue.remove();
 
@@ -562,7 +584,6 @@ public class GraphLib {
             }
             path.add(0, vertex);
         }
-        System.out.println("Steps taken: " + steps);
 
         /* return reconstructed path */
         return path;
