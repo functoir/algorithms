@@ -33,15 +33,14 @@
 from timeit import timeit
 import matplotlib.pyplot as plt
 from matrix import *
-from functools import lru_cache
 
 import sys
-sys.setrecursionlimit(20000)
+# sys.setrecursionlimit(20)
 
 
 def fib_recursive(n: int) -> int:
     """ Find the n-th fibonacci number by naive recursion """
-    if n < 2:
+    if n <= 2:
         return n
     return fib_recursive(n - 1) + fib_recursive(n - 2)
 
@@ -57,25 +56,27 @@ def fib_iterative(n: int) -> int:
     return curr
 
 
-@lru_cache(10000)
 def fib_memoized(n: int) -> int:
     """ Find the n-th fibonacci number with memoization"""
-    if n < 2:
-        return n
-    return fib_memoized(n - 1) + fib_memoized(n - 2)
+    memory: list = [0, 1]
+    for i in range(2, n+1):
+        memory.append(memory[-1] + memory[-2])
+    return memory[n]
 
 
 def fib_matrix(n):
-    if n == 1 or n == 2:
+    if n < 2:
+        return n
+    elif n == 2:
         return 1
     final = matrix_power([[1, 1], [1, 0]], n - 1)
     return final[0][0]
 
 
 if __name__ == '__main__':
-    # print(f"The 21st fibonacci number using recursion is {fib_recursive(21)}")
-    # print(f"The 21st fibonacci number using iteration is {fib_iterative(21)}")
-    # print(f"The 21st fibonacci number using memoization is {fib_memoized(21)}")
+    print(f"The 21st fibonacci number using recursion is {fib_recursive(21)}")
+    print(f"The 21st fibonacci number using iteration is {fib_iterative(21)}")
+    print(f"The 21st fibonacci number using memoization is {fib_memoized(21)}")
     print(f"The 21st fibonacci number using matrix multiplication is {fib_matrix(21)}")
 
     # Add code to do the rest of this problem
@@ -85,18 +86,18 @@ if __name__ == '__main__':
     memoization_runtimes: list = []
     matrix_runtimes: list = []
 
-    ns = [2 ** t for t in range(1, 24)]
+    ns = [2 ** t for t in range(1, 19)]
 
     for n in ns:
         print(f"Computing with n = {n}")
         # print(data)
         sizes.append(n)
         # recursive_runtimes.append(timeit("fib_recursive(n)",
-                                         # number=10, globals=globals()))
-        # iterative_runtimes.append(timeit("fib_iterative(n)",
         #                                  number=10, globals=globals()))
-        # memoization_runtimes.append(timeit("fib_memoized(n)",
-        #                                    number=10, globals=globals()))
+        iterative_runtimes.append(timeit("fib_iterative(n)",
+                                         number=10, globals=globals()))
+        memoization_runtimes.append(timeit("fib_memoized(n)",
+                                           number=10, globals=globals()))
         matrix_runtimes.append(timeit("fib_matrix(n)",
                                       number=10, globals=globals()))
 
@@ -108,16 +109,16 @@ if __name__ == '__main__':
     plt.title("FIBONACCI", fontdict=titles)
     plt.xlabel("n", fontdict=axes)
     plt.ylabel("Runtime", fontdict=axes)
-    # plt.plot(sizes, recursive_runtimes, "--ro")
-    # plt.plot(sizes, iterative_runtimes, "--go")
-    # plt.plot(sizes, memoization_runtimes, "--bo")
-    plt.plot(sizes, matrix_runtimes, "--ro")
+    # plt.plot(sizes, recursive_runtimes, "--ko")             # black
+    plt.plot(sizes, iterative_runtimes, "--go")             # green
+    plt.plot(sizes, memoization_runtimes, "--bo")           # blue
+    plt.plot(sizes, matrix_runtimes, "--ro")                # red
 
     plt.show()
 
-    # print(f"The {sizes[-1]} fibonacci number using recursion is: {recursive_runtimes[-1]}.")
-    # print(f"The {sizes[-1]}th fibonacci number using iteration is: {fib_iterative(sizes[-1])}.")
-    # print(f"The {sizes[-1]}th fibonacci number using memoization is: {fib_memoized(sizes[-1])}.")
+    # print(f"The {sizes[-1]}th fibonacci number using recursion is: {fib_recursive(sizes[-1])}.")
+    print(f"The {sizes[-1]}th fibonacci number using iteration is: {fib_iterative(sizes[-1])}.")
+    print(f"The {sizes[-1]}th fibonacci number using memoization is: {fib_memoized(sizes[-1])}.")
     print(f"The {sizes[-1]}th fibonacci number using matrix multiplication is: {fib_matrix(sizes[-1])}.")
 
     print("\nFINISHED.\n")
