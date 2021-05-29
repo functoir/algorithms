@@ -4,6 +4,7 @@
     1. matrix_power() ->
         divide-and-conquer strategies for
         finding a matrix exponential.
+        This function makes use of Strassen's algorithm to optimize its runtime.
 
     2. matrix_multiply() ->
         an implementation of Strassen's O(n^log_2(7))
@@ -27,6 +28,17 @@
 
     7. matrix_identity() ->
         A function that, given a dimension n, returns the (n x n) identity matrix.
+
+    8. matrix_transpose() ->
+        Given an (m x n) matrix, returns the (n x m) transpose of the matrix.
+        
+    IMPORTANT NOTE:
+        It is usual to represent matrices as an array of arrays, wherein each sub-array
+        represents either a column or row of the matrix. 
+        
+        In this implementation, each sub-array is interpreted to be a column of the matrix.
+        It's important that the caller create/implement matrices with similar
+        semantics, or the calculations are not guaranteed to be correct.
 
     (c) Amittai J. Wekesa (github: @siavava), May 2021.
 ...
@@ -60,10 +72,25 @@ def matrix_identity(n: int) -> list:
     return identity
 
 
-def matrix_multiply(mat_a: list, mat_b: list) -> list:
+def matrix_transpose(matrix: list) -> list:
+    transpose: list = []
+    for row in range(len(matrix[1])):
+        column = []
+        for col in range(len(matrix)):
+            column.append(matrix[col][row])
+        transpose.append(column)
+    return transpose
+
+
+def matrix_multiply(mat_a: list, mat_b: list):
     n: int = len(mat_a)
     if n != len(mat_b):
         print("ERROR: Cannot multiply non-square matrices using Strassen. Stop.")
+        return None
+    elif n % 2 != 0:
+        print("ERROR: Cannot work on matrices whose dimensions are not a factor of two.")
+        print("An update will be coming soon!")
+        return None
 
     if n > 2:
         mode = "matrix"
@@ -267,9 +294,11 @@ if __name__ == '__main__':
     c = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
     h = [[1, 2], [3, 4]]
-    print(b[0])
-    print(b[0][3])
+    # print(b[0])
+    # print(b[0][3])
     print(matrix_multiply(d, d))
     print(matrix_power(d, 5))
     print(matrix_multiply(c, d))
-    print(matrix_identity(10))
+    print(matrix_identity(4))
+    print(matrix_transpose(b))
+    print(matrix_power(b, 113))
