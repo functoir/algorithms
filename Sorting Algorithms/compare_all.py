@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # gradients: list = []
 
     maxkey = (2 ^ 32) - 1
-    ns = [2 ** t for t in range(1, 10)]
+    ns = [2 ** t for t in range(1, 12)]
 
     for n in ns:
         print(f"Generating and sorting data with n = {n}")
@@ -52,6 +52,7 @@ if __name__ == "__main__":
     plt.plot(sizes, heap_runtimes, "--co")
     plt.plot(sizes, merge_runtimes, "--ko")
     plt.plot(sizes, radix_runtimes, "--mo")
+    plt.savefig('./output/all.png', dpi=300, transparent=True)
 
     plt.show()
 

@@ -86,5 +86,6 @@ if __name__ == '__main__':
     plt.xlabel("Size of array")
     plt.ylabel("Gradient")
     plt.plot(sizes, gradients, "--b+")
+    plt.savefig('./output/radix-sort.png', dpi=300, transparent=True)
     plt.show()
     print("\nFINISHED.\n")

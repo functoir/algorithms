@@ -46,7 +46,7 @@ if __name__ == '__main__':
     runtimes: list = []
     gradients: list = []
 
-    ns = [2 ** t for t in range(3, 15)]
+    ns = [2 ** t for t in range(3, 20)]
 
     for n in ns:
         print(f"Generating and sorting data with n = {n}")
@@ -69,5 +69,6 @@ if __name__ == '__main__':
     plt.xlabel("Size of array")
     plt.ylabel("Gradient")
     plt.plot(sizes, gradients, "--bo")
+    plt.savefig('./output/heap-sort.png', dpi=300, transparent=True)
     plt.show()
     print("\nFINISHED.\n")
