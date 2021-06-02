@@ -35,4 +35,79 @@
 ```
 
 ***
+## Individual results
+
+### Recursion
+
+#### Results
+```python
+The fibonacci number 1 using recursion is 1
+The fibonacci number 2 using recursion is 1
+The fibonacci number 3 using recursion is 2
+The fibonacci number 4 using recursion is 3
+The fibonacci number 5 using recursion is 5
+The fibonacci number 6 using recursion is 8
+The fibonacci number 7 using recursion is 13
+The fibonacci number 8 using recursion is 21
+The fibonacci number 9 using recursion is 34
+```
+#### Runtime
+![](./output/recursion.png)
+
+
+### Iteration
+
+#### Results
+```python
+The fibonacci number 1 using iteration is 1
+The fibonacci number 2 using iteration is 1
+The fibonacci number 3 using iteration is 2
+The fibonacci number 4 using iteration is 3
+The fibonacci number 5 using iteration is 5
+The fibonacci number 6 using iteration is 8
+The fibonacci number 7 using iteration is 13
+The fibonacci number 8 using iteration is 21
+The fibonacci number 9 using iteration is 34
+```
+#### Runtime
+![](./output/iteration.png)
+
+### Memoization
+
+#### Results
+```python
+The fibonacci number 1 using memoization is 1
+The fibonacci number 2 using memoization is 1
+The fibonacci number 3 using memoization is 2
+The fibonacci number 4 using memoization is 3
+The fibonacci number 5 using memoization is 5
+The fibonacci number 6 using memoization is 8
+The fibonacci number 7 using memoization is 13
+The fibonacci number 8 using memoization is 21
+The fibonacci number 9 using memoization is 34
+```
+
+#### Runtime
+![](./output/memoization.png)
+
+### Matrix exponentiation
+#### Results
+```python
+The fibonacci number 1 using matrix exponentiation is 1
+The fibonacci number 2 using matrix exponentiation is 1
+The fibonacci number 3 using matrix exponentiation is 2
+The fibonacci number 4 using matrix exponentiation is 3
+The fibonacci number 5 using matrix exponentiation is 5
+The fibonacci number 6 using matrix exponentiation is 8
+The fibonacci number 7 using matrix exponentiation is 13
+The fibonacci number 8 using matrix exponentiation is 21
+The fibonacci number 9 using matrix exponentiation is 34
+```
+
+#### Runtime
+![](./output/matrix.png)
+
+***
+
 # Comparison
+![](./output/all.png)

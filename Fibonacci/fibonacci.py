@@ -37,8 +37,10 @@ from Matrix.matrix import *
 
 def fib_recursive(n: int) -> int:
     """ Find the n-th fibonacci number by naive recursion """
-    if n <= 2:
+    if n == 0:
         return n
+    elif n <= 2:
+        return 1
     return fib_recursive(n - 1) + fib_recursive(n - 2)
 
 
@@ -74,12 +76,108 @@ def fib_matrix(n):
 
 
 if __name__ == '__main__':
-    print(f"The 21st fibonacci number using recursion is {fib_recursive(21)}")
-    print(f"The 21st fibonacci number using iteration is {fib_iterative(21)}")
-    print(f"The 21st fibonacci number using memoization is {fib_memoized(21)}")
-    print(f"The 21st fibonacci number using matrix multiplication is {fib_matrix(21)}")
 
-    # Add code to do the rest of this problem
+    """
+    Check the first 10 fibonacci numbers using each method
+    """
+    # for i in range(1, 10):
+    #     print(f"The fibonacci number {i} using recursion is {fib_recursive(i)}")
+    # for i in range(1, 10):
+    #     print(f"The fibonacci number {i} using iteration is {fib_iterative(i)}")
+    # for i in range(1, 10):
+    #     print(f"The fibonacci number {i} using memoization is {fib_memoized(i)}")
+    # for i in range(1, 10):
+    #     print(f"The fibonacci number {i} using matrix exponentiation is {fib_matrix(i)}")
+
+    """
+    To store data
+    """
+    sizes = []
+    runtimes = []
+
+
+    """
+    Generate plots for recursive fibonacci
+    """
+    # for i in range(1, 100):
+    #     sizes.append(i)
+    #     print(f"Computing with n = {i}")
+    #     runtimes.append(timeit("fib_recursive(i)", number=10, globals=globals()))
+    #
+    # titles = {'family': 'serif', 'color': 'blue', 'size': 20}
+    # axes = {'family': 'serif', 'color': 'darkred', 'size': 15}
+    # plt.grid(True, which="both")
+    # plt.title("RECURSIVE FIBONACCI", fontdict=titles)
+    # plt.xlabel("n", fontdict=axes)
+    # plt.ylabel("Runtime", fontdict=axes)
+    # plt.plot(sizes, runtimes, "--r+")
+    # plt.savefig('./output/recursion.png', dpi=300, transparent=False)
+    # plt.show()
+
+    """
+    Generate plots for iterative fibonacci
+    """
+    # for i in range(1, 500):
+    #     sizes.append(i)
+    #     print(f"Computing with n = {i}")
+    #     runtimes.append(timeit("fib_iterative(i)", number=10, globals=globals()))
+    #
+    # titles = {'family': 'serif', 'color': 'blue', 'size': 20}
+    # axes = {'family': 'serif', 'color': 'darkred', 'size': 15}
+    # plt.grid(True, which="both")
+    # plt.title("ITERATIVE FIBONACCI", fontdict=titles)
+    # plt.xlabel("n", fontdict=axes)
+    # plt.ylabel("Runtime", fontdict=axes)
+    # plt.plot(sizes, runtimes, "--r+")
+    # plt.savefig('./output/iteration.png', dpi=300, transparent=False)
+    # plt.show()
+
+    """
+    Generate plots for memoized fibonacci
+    """
+    # for i in range(1, 500):
+    #     sizes.append(i)
+    #     print(f"Computing with n = {i}")
+    #     runtimes.append(timeit("fib_memoized(i)", number=10, globals=globals()))
+    #
+    # titles = {'family': 'serif', 'color': 'blue', 'size': 20}
+    # axes = {'family': 'serif', 'color': 'darkred', 'size': 15}
+    # plt.grid(True, which="both")
+    # plt.title("MEMOIZED FIBONACCI", fontdict=titles)
+    # plt.xlabel("n", fontdict=axes)
+    # plt.ylabel("Runtime", fontdict=axes)
+    # plt.plot(sizes, runtimes, "--r+")
+    # plt.savefig('./output/memoization.png', dpi=300, transparent=False)
+    # plt.show()
+
+    """
+    Generate plots for matrix fibonacci
+    """
+    # for i in range(1, 20000):
+    #     sizes.append(i)
+    #     print(f"Computing with n = {i}")
+    #     runtimes.append(timeit("fib_matrix(i)", number=10, globals=globals()))
+    #
+    # titles = {'family': 'serif', 'color': 'blue', 'size': 20}
+    # axes = {'family': 'serif', 'color': 'darkred', 'size': 15}
+    # plt.grid(True, which="both")
+    # plt.title("MATRIX FIBONACCI", fontdict=titles)
+    # plt.xlabel("n", fontdict=axes)
+    # plt.ylabel("Runtime", fontdict=axes)
+    # plt.plot(sizes, runtimes, "--r+")
+    # plt.savefig('./output/matrix.png', dpi=300, transparent=False)
+    # plt.show()
+
+
+
+    """
+    Generate combined plots for comparison.
+    (minus the recursive one because it takes too long
+    and it shoots out of the range of the other,
+    making the information about the others be clustered
+     and less meaningful.)
+    """
+
     sizes: list = []
     # recursive_runtimes: list = []
     iterative_runtimes: list = []
@@ -109,16 +207,11 @@ if __name__ == '__main__':
     plt.title("FIBONACCI", fontdict=titles)
     plt.xlabel("n", fontdict=axes)
     plt.ylabel("Runtime", fontdict=axes)
-    # plt.plot(sizes, recursive_runtimes, "--ko")             # black
+    # plt.plot(sizes, recursive_runtimes, "--ko")           # black
     plt.plot(sizes, iterative_runtimes, "--go")             # green
     plt.plot(sizes, memoization_runtimes, "--bo")           # blue
     plt.plot(sizes, matrix_runtimes, "--ro")                # red
+    plt.savefig('./output/all.png', dpi=300, transparent=False)
 
     plt.show()
-
-    # print(f"The {sizes[-1]}th fibonacci number using recursion is: {fib_recursive(sizes[-1])}.")
-    print(f"The {sizes[-1]}th fibonacci number using iteration is: {fib_iterative(sizes[-1])}.")
-    print(f"The {sizes[-1]}th fibonacci number using memoization is: {fib_memoized(sizes[-1])}.")
-    print(f"The {sizes[-1]}th fibonacci number using matrix multiplication is: {fib_matrix(sizes[-1])}.")
-
     print("\nFINISHED.\n")
