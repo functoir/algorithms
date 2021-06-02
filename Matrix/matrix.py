@@ -44,8 +44,18 @@
 ...
 """
 
+from timeit import timeit
+import numpy as np
+from numpy.random import randint
+from mpl_toolkits import mplot3d
+from matplotlib import pyplot as plt
+from math import log, log2, ceil
+
 
 def matrix_power(matrix: list, exponential: int) -> list:
+    """
+    Compute the power of a matrix.
+    """
     if exponential == 0:
         return matrix_identity(len(matrix))
     elif exponential == 1:
@@ -60,6 +70,11 @@ def matrix_power(matrix: list, exponential: int) -> list:
 
 
 def matrix_identity(n: int) -> list:
+    """
+    Generate the n-sized identity matrix.
+    """
+    if n == 0:
+        return [0]
     identity: list = []
     for col in range(n):
         column: list = []
@@ -72,7 +87,26 @@ def matrix_identity(n: int) -> list:
     return identity
 
 
+def matrix_generate(n: int, maximum=10**4) -> list:
+    """
+    Generate a random square matrix of given size
+    Maximum size of element
+    """
+    if n == 0:
+        return [0]
+    m: list = []
+    for col in range(n):
+        column: list = []
+        for row in range(n):
+            column.append(randint(maximum))
+        m.append(column)
+    return m
+
+
 def matrix_transpose(matrix: list) -> list:
+    """
+    Compute the transpose of a matrix
+    """
     transpose: list = []
     for row in range(len(matrix[1])):
         column = []
@@ -83,6 +117,9 @@ def matrix_transpose(matrix: list) -> list:
 
 
 def matrix_multiply(mat_a: list, mat_b: list):
+    """
+    Multiply rwo matrices.
+    """
     n: int = len(mat_a)
     if n != len(mat_b):
         print("ERROR: Cannot multiply non-square matrices using Strassen. Stop.")
@@ -164,6 +201,9 @@ def matrix_multiply(mat_a: list, mat_b: list):
 
 
 def matrix_sum(mat_a: list, mat_b: list):
+    """
+    Compute the sum of two compatible matrices.
+    """
     n: int = len(mat_a)
     if n != len(mat_b):
         print("ERROR: cannot add incompatible matrices. Stop.")
@@ -178,6 +218,9 @@ def matrix_sum(mat_a: list, mat_b: list):
 
 
 def matrix_difference(mat_a: list, mat_b: list):
+    """
+    Compute the difference of two matrices.
+    """
     n: int = len(mat_a)
     if n != len(mat_b):
         print("ERROR: cannot subtract incompatible matrices. Stop.")
@@ -192,6 +235,9 @@ def matrix_difference(mat_a: list, mat_b: list):
 
 
 def matrix_compile(main: list, sub: list, pos: int):
+    """
+    Compile sub-matrices into a main matrix.
+    """
     n = len(sub)
     total = len(main)
     if len(main) != 2 * n:
@@ -246,6 +292,9 @@ def matrix_compile(main: list, sub: list, pos: int):
 
 
 def matrix_get(main: list, pos: int):
+    """
+    Get a subset of a matrix.
+    """
     n = len(main)
     if n % 2 != 0:
         print("ERROR: Cannot split matrix with odd num of cols/rows. Stop.")
@@ -294,11 +343,53 @@ if __name__ == '__main__':
     c = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
 
     h = [[1, 2], [3, 4]]
-    # print(b[0])
-    # print(b[0][3])
     print(matrix_multiply(d, d))
     print(matrix_power(d, 5))
     print(matrix_multiply(c, d))
     print(matrix_identity(4))
     print(matrix_transpose(b))
     print(matrix_power(b, 113))
+    print(f"random matrix: {matrix_generate(8)}")
+
+    # Add code to do the rest of this problem
+    sizes: list = []
+    runtimes: list = []
+    data = []
+    ns = [2 ** t for t in range(1, 7)]
+
+    titles = {'family': 'serif', 'color': 'blue', 'size': 20}
+    axes = {'family': 'serif', 'color': 'darkred', 'size': 15}
+    power = 4
+    for n in ns:
+        print(f"Computing with size = {n}, power = {power}")
+        matrix = matrix_generate(n, 10)
+        sizes.append(n)
+        data.append(timeit("matrix_power(matrix, 4)",
+                                       number=10, globals=globals()))
+
+    # Generate plots
+    plt.subplot(121)
+    plt.grid(True, which="both")
+    plt.title("exponential = 4", fontdict=titles)
+    plt.xlabel("size", fontdict=axes)
+    plt.ylabel("runtime", fontdict=axes)
+    plt.plot(sizes, data, "--ro")
+
+    plt.subplot(122)
+    plt.title("size = 2", fontdict=titles)
+    plt.xlabel("exponential", fontdict=axes)
+    plt.ylabel("runtime", fontdict=axes)
+    size = 2
+    maxInt = 10
+    matrix = matrix_generate(size, maxInt)
+    powers = []
+    static_runtimes = []
+    for power in range(600):
+        print(f"Computing size = 2, power = {power}.")
+        powers.append(power)
+        static_runtimes.append(timeit("matrix_power(matrix, power)",
+                                       number=10, globals=globals()))
+    plt.plot(powers, static_runtimes, "--b+")
+    plt.savefig('./output/matrix-powers.png', dpi=300, transparent=False)
+    plt.show()
+    print("FINISHED!")

@@ -32,10 +32,7 @@
 
 from timeit import timeit
 import matplotlib.pyplot as plt
-from matrix import *
-
-import sys
-# sys.setrecursionlimit(20)
+from Matrix.matrix import *
 
 
 def fib_recursive(n: int) -> int:
@@ -65,6 +62,9 @@ def fib_memoized(n: int) -> int:
 
 
 def fib_matrix(n):
+    """
+    Compute the n-th fibonacci number using matrix multiplication.
+    """
     if n < 2:
         return n
     elif n == 2:
