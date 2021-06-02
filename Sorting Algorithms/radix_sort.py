@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     plt.subplot(121)
     plt.grid(True, which="both")
-    plt.title("COMBINED SORT")
+    plt.title("RADIX SORT")
     plt.xlabel("Size of array")
     plt.ylabel("Runtime")
     plt.plot(sizes, radix_runtimes, "--ro")

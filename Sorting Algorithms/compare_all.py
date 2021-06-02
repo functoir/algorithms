@@ -1,8 +1,8 @@
-from bubble_sort import *
-from exchange_sort import *
-from heap_sort import *
-from insertion_sort import *
-from merge_sort import *
+# from bubble_sort import *
+# from exchange_sort import *
+# from heap_sort import *
+# from insertion_sort import *
+# from merge_sort import *
 from radix_sort import *
 
 
@@ -53,6 +53,6 @@ if __name__ == "__main__":
     plt.plot(sizes, merge_runtimes, "--ko")
     plt.plot(sizes, radix_runtimes, "--mo")
 
-    plt.show();
+    plt.show()
 
     print("\nFINISHED.\n")
