@@ -110,4 +110,9 @@ The fibonacci number 9 using matrix exponentiation is 34
 ***
 
 # Comparison
+```python
+We do not include the recursive implementation because it takes too long to complete 
+for this problem range and it shoots off the range of the others, making the data about the others 
+be clustered towards zero and less informative.
+```
 ![](./output/all.png)
