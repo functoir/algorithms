@@ -52,7 +52,7 @@ if __name__ == "__main__":
     plt.plot(sizes, heap_runtimes, "--co")
     plt.plot(sizes, merge_runtimes, "--ko")
     plt.plot(sizes, radix_runtimes, "--mo")
-    plt.savefig('./output/all.png', dpi=300, transparent=True)
+    plt.savefig('./output/all.png', dpi=300, transparent=False)
 
     plt.show()
 

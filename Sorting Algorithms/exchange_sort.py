@@ -46,6 +46,6 @@ if __name__ == "__main__":
     plt.xlabel("Size of array")
     plt.ylabel("Gradient")
     plt.plot(sizes, gradients, "--b+")
-    plt.savefig('./output/exchange-sort.png', dpi=300, transparent=True)
+    plt.savefig('./output/exchange-sort.png', dpi=300, transparent=False)
     plt.show()
     print("\nFINISHED.\n")
