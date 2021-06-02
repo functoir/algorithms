@@ -2,7 +2,8 @@
 ***
 ```python
 """
-...This module implements methods for finding fibonacci numbers, namely:
+...
+This module implements methods for finding fibonacci numbers, namely:
 
     1. fib_recursive() ->
         A function that, given an integer n, finds the n-th fibonacci number
