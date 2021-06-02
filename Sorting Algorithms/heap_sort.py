@@ -33,31 +33,6 @@ def heap_sort(array: list) -> list:
         heapify(array, i, 0)
     return array
 
-# def heap_sort(arr: list) -> list:
-#     for i in range(len(arr)):
-#         ch = i
-#         while ch > 0:
-#             par = ch // 2
-#             if arr[par] < arr[ch]:
-#                 arr[par], arr[ch] = arr[ch], arr[par]
-#             ch = par
-#
-#     for i in range(len(arr)-1, 0, -1):
-#         arr[0], arr[i] = arr[i], arr[0]
-#         if i > 0:
-#             i -= 1
-#         par = 0
-#         while par <= i // 2:
-#             if par == 0:
-#                 ch = 1
-#             else:
-#                 ch = 2 * par
-#             if ch < i and arr[ch+1] > arr[ch]:
-#                 ch = ch + 1
-#             if arr[par] < arr[ch]:
-#                 arr[par], arr[ch] = arr[ch], arr[par]
-#             par = ch
-#     return arr
 
 
 if __name__ == '__main__':
