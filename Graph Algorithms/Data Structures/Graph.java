@@ -26,7 +26,7 @@ public interface Graph<V,E> {
     public int outDegree(V v);
 
     /** Get the overall popularity of a vertex */
-    public Map<V, Integer> getPopularities();
+    public int distance(V u, V v);
 
     /** In-degree of vertex in Graph */
     public int inDegree(V v);

@@ -47,17 +47,20 @@ public class GraphTest {
         /* run traversals from random vertices in Graph */
         for (int i=0; i<3; i++) {
             for (String v1 : network.vertices()) {
-                System.out.println(GraphLib.bfs(network, v1) + "\n\n");
-                System.out.println(GraphLib.dfs(network, v1) + "\n\n");
-                System.out.println(GraphLib.Dijkstra(network, v1) + "\n\n");
-                System.out.println(GraphLib.BellmanFord(network, v1) + "\n\n");
-                System.out.println(GraphLib.BellmanFordSSSP(network, v1) + "\n\n");
+//                System.out.println(GraphLib.bfs(network, v1) + "\n\n");
+//                System.out.println(GraphLib.dfs(network, v1) + "\n\n");
+//                System.out.println(GraphLib.Dijkstra(network, v1) + "\n\n");
+//                System.out.println(GraphLib.BellmanFord(network, v1) + "\n\n");
+//                System.out.println(GraphLib.BellmanFordSSSP(network, v1) + "\n\n");
 
-
+                int count = 0;
                 for (String v2 : network.vertices()) {
                     if (!v2.equals(v1)) {
                         System.out.println(GraphLib.DijkstraPath(network, v1, v2));
-                        break;
+                        System.out.println(GraphLib.AStar(network, v1, v2));
+                        if (count++ > 3) {
+                            break;
+                        }
                     }
                 }
             }

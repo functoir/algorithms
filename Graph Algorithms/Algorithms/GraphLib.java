@@ -385,6 +385,7 @@ public final class GraphLib {
 
         /* save start vertex to back-track */
         backTrack.put(start, null);
+        int step = 0;
 
         /* Initialize the priority queue */
         Queue<V> queue = new PriorityQueue<>(G.numVertices(), Comparator.comparingInt(costs::get));
@@ -405,6 +406,7 @@ public final class GraphLib {
         while (!queue.isEmpty()) {
             /* extract min from queue */
             V current = queue.remove();
+            step++;
 
             /* get score of current */
             int curr;
@@ -423,15 +425,20 @@ public final class GraphLib {
                         }
                     }
                 }
+//                System.out.println("Dijkstra, step " + step + "\n");
+//                for (V v : backTrack.keySet()) {
+//                    System.out.println(v + " : " + backTrack.get(v));
+//                }
                 if (current == end) {
                     break;
                 }
-                else if (costs.get(current) == Integer.MAX_VALUE) {
-                    return "not found.";
-                }
+//                else if (costs.get(current) == Integer.MAX_VALUE) {
+//                    return "not found.";
+//                }
             }
 
         }
+        System.out.println("Dijkstra: Target found in " + step + " steps.");
 
         /* rebuild path */
         List<V> path = new LinkedList<>();
@@ -608,9 +615,9 @@ public final class GraphLib {
      */
     public static <V,E> Object AStar(Graph<V,E> G, V start, V end) {
         System.out.println("A* Pathfinding from '" + start + "' to '" + end + "'." );
-        Map<V,Integer> popularities = G.getPopularities();
         Map<V, Integer> costs = new HashMap<>();     // initialize map of costs
         Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
+        int step = 0;
 
         /* save start vertex to back-track */
         backTrack.put(start, null);
@@ -620,9 +627,44 @@ public final class GraphLib {
 
         Queue<V> queue = new PriorityQueue<>(G.numVertices(), (n1, n2) -> {
             // compare n1 and n2
-            int one = costs.get(n1) + popularities.get(n1) / 2;
-            int two = costs.get(n2) + popularities.get(n2) / 2;
-//            System.out.println("one: " + one + " two: " + two);
+            int distN1 = G.distance(n1, end);
+            int costN1 = costs.get(n1);
+            int distN2 = G.distance(n2, end);
+            int costN2 = costs.get(n2);
+
+            if (costN1 == Integer.MAX_VALUE || costN2 == Integer.MAX_VALUE) {
+                if (costN1 == Integer.MAX_VALUE && costN2 == Integer.MAX_VALUE) {
+                    return 0;
+                }
+                /* if one OR the other is infinity, return > or < */
+                else if (costN1 == Integer.MAX_VALUE) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            }
+
+            /* if both distances are infinity, return 0 */
+            if (distN1 == Integer.MAX_VALUE || distN2 == Integer.MAX_VALUE) {
+                if (distN1 == Integer.MAX_VALUE && distN2 == Integer.MAX_VALUE) {
+                    return 0;
+                }
+                /* if one OR the other is infinity, return > or < */
+                else if (distN1 == Integer.MAX_VALUE) {
+                    return 1;
+                }
+                else {
+                    return -1;
+                }
+            }
+
+
+
+            /* return the comparison of cost to next + next to target
+               if both don't have an infinity cost to target */
+            int one = costN1;
+            int two = costN2;
 
             return Integer.compare(two, one);
         });
@@ -643,6 +685,7 @@ public final class GraphLib {
         while (!queue.isEmpty()) {
             /* extract min from queue */
             V current = queue.remove();
+            step++;
 
             /* get score of current */
             int curr = costs.get(current);
@@ -662,13 +705,17 @@ public final class GraphLib {
 
                 }
             }
+            // print progress
+//            System.out.println("A*, step " + step + "\n");
+//            for (V v : backTrack.keySet()) {
+//                System.out.println(v + " : " + backTrack.get(v));
+//            }
+            // No need to continue once end is reached
             if (current == end) {
                 break;
             }
-            else if (costs.get(current) == Integer.MAX_VALUE) {
-                return "not found.";
-            }
         }
+        System.out.println("A*: Target found in " + step + "steps.");
 
         /* rebuild path */
         List<V> path = new LinkedList<>();
