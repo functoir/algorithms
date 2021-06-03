@@ -2,12 +2,14 @@ import java.util.*;
 
 public class GraphTest {
     public static void main(String[] args) {
-        Graph<String, Integer> network = new AdjacencyMapGraph<>();
-//        for (char letter='A'; letter<='H'; letter++) {
-//            network.insertVertex(String.valueOf(letter));
-//        }
 
+        /* random number generator */
         Random random = new Random();
+
+        /* create a new Graph instance */
+        Graph<String, Integer> network = new AdjacencyMapGraph<>();
+
+        /* populate Graph with vertices */
         network.insertVertex("A");
         network.insertVertex("Z");
         for (int i=0; i<10; i++) {
@@ -15,9 +17,10 @@ public class GraphTest {
         }
 
 
+        /* populate Graph with random edges*/
         for (int i=0; i<150; i++) {
             String u = String.valueOf((char) ('A' + random.nextInt(26)));
-            String v = String.valueOf((char)('A' + random.nextInt(26)));
+            String v = String.valueOf((char) ('A' + random.nextInt(26)));
             if (network.hasVertex(u) && network.hasVertex(v)) {
                 if (!u.equals(v)) {
                     network.insertDirected(u, v, Math.max(1, random.nextInt(10)));
@@ -30,12 +33,18 @@ public class GraphTest {
                 }
             }
         }
+
+        /* remove directed edge from A to Z
+           to make results interesting */
         network.removeDirected("A", "Z");
 
+        /* print the generated Graph */
         System.out.println(network);
 
 
         // TODO: Unmute to run more extensive tests on the Graph
+
+        /* run traversals from random vertices in Graph */
         for (int i=0; i<3; i++) {
             for (String v1 : network.vertices()) {
                 System.out.println(GraphLib.bfs(network, v1) + "\n\n");
@@ -58,28 +67,28 @@ public class GraphTest {
 
 
 
-        /* I created a Graph that can be sorted because
-        -- most --
-         of the Graphs generated above turn out to be cyclic */
-        Graph<String, Integer> test = new AdjacencyMapGraph<>();
-        test.insertVertex("Task 1");
-        test.insertVertex("Task 2");
-        test.insertVertex("Task 3");
-        test.insertVertex("Task 4");
-        test.insertVertex("Task 5");
-        test.insertVertex("Task 6");
+        /* I created a new Graph that can be topologically sorted
+           because         -- most --         of the Graphs
+           generated above turn out to be cyclic */
+        Graph<String, Integer> sortableGraph = new AdjacencyMapGraph<>();
+        sortableGraph.insertVertex("Task 1");
+        sortableGraph.insertVertex("Task 2");
+        sortableGraph.insertVertex("Task 3");
+        sortableGraph.insertVertex("Task 4");
+        sortableGraph.insertVertex("Task 5");
+        sortableGraph.insertVertex("Task 6");
 
-        test.insertDirected("Task 1", "Task 6", 7);
-        test.insertDirected("Task 2", "Task 5", 6);
-        test.insertDirected("Task 3", "Task 4", 8);
-        test.insertDirected("Task 4", "Task 2", 5);
-        test.insertDirected("Task 1", "Task 5", 1);
-        test.insertDirected("Task 1", "Task 4", 1);
-        test.insertDirected("Task 6", "Task 5", 1);
+        sortableGraph.insertDirected("Task 1", "Task 6", 7);
+        sortableGraph.insertDirected("Task 2", "Task 5", 6);
+        sortableGraph.insertDirected("Task 3", "Task 4", 8);
+        sortableGraph.insertDirected("Task 4", "Task 2", 5);
+        sortableGraph.insertDirected("Task 1", "Task 5", 1);
+        sortableGraph.insertDirected("Task 1", "Task 4", 1);
+        sortableGraph.insertDirected("Task 6", "Task 5", 1);
 
         System.out.println("Running Topo-Sort on new Graph");
-        System.out.println(test);
-        System.out.println("Topological Ordering: " + GraphLib.TopoSort(test));
+        System.out.println(sortableGraph);
+        System.out.println("Topological Ordering: " + GraphLib.TopoSort(sortableGraph));
     }
 
 }

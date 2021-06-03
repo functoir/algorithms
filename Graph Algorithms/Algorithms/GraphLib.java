@@ -5,15 +5,15 @@ import java.util.*;
  * A library of Graph algorithms.
  * @author Amittai J. Wekesa (@siavava)
  */
-public class GraphLib {
+public final class GraphLib {
 
     /**
-     * Breadth-First Search
+     * Breadth-First Search to find predecessors of vertices in Graph
      * @param G: Graph
      * @param start start vertex
      * @param <V> vertex data type
      * @param <E> edge data type
-     * @return Map containing vertices and their predecessors.
+     * @return Map containing vertices and their predecessors in bfs traversal.
      *          {V vertex -> V predecessor}
      *          Start vertex points to "null" as predecessor.
      *          Individual paths can be reconstructed by back-tracing.
@@ -46,6 +46,58 @@ public class GraphLib {
     }
 
     /**
+     * Breadth-First Search with to find path A --> B
+     * @param <V> vertex data type
+     * @param <E> edge data type
+     * @param G : Graph
+     * @param start start vertex
+     * @param end the end vertex
+     * @return Either a String indicating that no path exists,
+     * or a list of the vertices in the path from A to B in order of traversal.
+     */
+    public static <V,E> Object bfsPath(Graph<V,E> G, V start, V end) {
+        System.out.println("BFS path-finding from " + start + " to " + end);
+
+        /* initialize variables */
+        Map<V,V> backTrack = new HashMap<>();
+        Set<V> visited = new HashSet<>();
+        Queue<V> queue = new LinkedList<>();    // better than ArrayList since we add to tail, remove from head
+
+        backTrack.put(start, null);     // add start vertex to backtrack
+        queue.add(start);               // add start to queue
+        visited.add(start);             // mark start as visited
+
+        while (!queue.isEmpty()) {              // repeat until queue is empty
+            V u = queue.remove();               // dequeue
+            for (V v : G.outNeighbors(u)) {     // get all neighbors of current vertex
+                if (!visited.contains(v)) {     // if neighbor not visited, visit.
+                    visited.add(v);             // remember neighbor has been visited.
+                    queue.add(v);               // add to stack (so we can get vertex's neighbors)
+                    backTrack.put(v, u);        // add edge to backtrace
+                    if (v.equals(end)) {
+                        break;
+                    }
+                }
+                if (v.equals(end)) {
+                    break;
+                }
+            }
+        }
+
+        /* generate paths */
+        V vertex = end;
+        if (backTrack.getOrDefault(vertex, null) == null) {
+            return "No connection from " + start + " to " + end;
+        }
+        List<V> path = new LinkedList<V>();
+        for (; vertex != null; vertex = backTrack.getOrDefault(vertex, null)) {
+            path.add(0, vertex);
+        }
+        return path;
+    }
+
+
+    /**
      * Depth-First Search
      * @param G: Graph
      * @param start start vertex
@@ -66,7 +118,6 @@ public class GraphLib {
         Stack<V> stack = new Stack<>();
 
         backTrack.put(start, null);     // add start to backtrack
-//        visited.add(start);             // mark start as visited
 
         stack.push(start);                          // add start to stack
         while (!stack.isEmpty()) {                  // while stack is not empty...
@@ -87,8 +138,56 @@ public class GraphLib {
     }
 
     /**
+     * Depth-First Search
+     * @param <V> vertex data type
+     * @param <E> edge data type
+     * @param G : Graph
+     * @param start start vertex
+     * @param end the end vertex
+     * @return Either a String indicating that no path exists,
+     * or a list of the vertices in the path from A to B in order of traversal.
+     */
+    public static <V,E> Object dfsPath(Graph<V,E> G, V start, V end) {
+        System.out.println("Depth-First Search from " + start + " to " + end);
+
+        /* initialize variables */
+        Map<V,V> backTrack = new HashMap<>();
+        Set<V> visited = new HashSet<>();
+        Stack<V> stack = new Stack<>();
+
+        backTrack.put(start, null);     // add start to backtrack
+
+        stack.push(start);                          // add start to stack
+        while (!stack.isEmpty()) {                  // while stack is not empty...
+            V u = stack.pop();                      // pop from top of stack
+            if (!visited.contains(u)) {             // if vertex not yet visited;
+                visited.add(u);                     // visit vertex, mark as visited
+                for (V v : G.outNeighbors(u)) {     // get neighbors
+                    if (!visited.contains(v)) {     // if neighbor not visited,
+                        stack.push(v);              // add to stack
+                        backTrack.put(v, u);        // remember traversal path
+                    }
+                }
+            }
+        }
+
+        /* generate path */
+        V vertex = end;
+        if (backTrack.getOrDefault(vertex, null) == null) {
+            return "No connection from " + start + " to " + end;
+        }
+
+        List<V> path = new LinkedList<V>();
+        for (; vertex != null; vertex = backTrack.getOrDefault(vertex, null)) {
+            path.add(0, vertex);
+        }
+        return path;
+    }
+
+    /**
      * Kahn's topological sorting algorithm
-     * Returns a topological ordering of a Graph
+     * Returns a topological ordering of a Graph; that is,
+     * an ordering with no backward dependencies.
      *
      * @param G : Graph to sort
      * @return Queue, a topological ordering of a Graph, or null if Graph is cyclic
@@ -105,9 +204,9 @@ public class GraphLib {
         Queue<V> ordering = new LinkedList<>();
 
         /* while Graph still has vertices */
-        int size = copy.numVertices();                                 // check current number of vertices in Graph
-        while(size > 0) {   // while Graph still has vertices...
-            int current = size;
+        int size = copy.numVertices();              // check current number of vertices in Graph
+        while(size > 0) {                           // while Graph still has vertices...
+            int currentSize = size;
             Set<V> removed = new HashSet<>();
             for (V v : copy.vertices()) {           // loop over vertices
                 if (copy.inDegree(v) == 0) {        // add all that have no inward edges to the ordering
@@ -126,7 +225,7 @@ public class GraphLib {
              * no vertex was deleted, meaning all vertices have a dependency.
              * Graph MUST be cyclic.
              */
-            if (size == current) {
+            if (size == currentSize) {
                 return "Graph is cyclic.";
             }
         }
@@ -142,8 +241,7 @@ public class GraphLib {
      * to compute all shortest paths in a Graph.
      * @param G : Graph implementing some vertex type and some edge type.
      *         Edge type must extend "Double" datatype (i.e. must be a number).
-     * @return Map of each vertex to Map of adjacent vertices, costs
-     *          {vertex -> {adjacent vertex -> shortest path}}
+     * @return {vertex -> {adjacent vertex -> shortest path}}
      *          TODO: NOTE: We drop all infinity edges. If a vertex u does not
      *           have a minimum cost value to another vertex v in the Graph
      *           then u is unreachable from v.
@@ -155,7 +253,7 @@ public class GraphLib {
         List<V> vertices = new ArrayList<>();
         G.vertices().forEach(vertices::add);
 
-        /* initial step: calculate costs direct connections */
+        /* initial step: calculate costs for direct connections */
         for (int i=1; i<=n; i++) {
             for (int j=1; j<=n; j++) {
                 if (i == j) {
@@ -263,7 +361,6 @@ public class GraphLib {
                             queue.add(next);
                             System.out.println(next + " : " + (curr + currToNext));
                         }
-
                     }
                 }
 
@@ -273,7 +370,7 @@ public class GraphLib {
     }
 
     /**
-     * Dijkstra's algorithm for single-source shortest paths.
+     * Dijkstra's algorithm for single-source shortest path.
      * Returns the shortest path from start vertex to end vertex.
      * To compute costs, use Dijkstra().
      * @param G : Graph
@@ -283,7 +380,6 @@ public class GraphLib {
      */
     public static <V,E> Object DijkstraPath(Graph<V,E> G, V start, V end) {
         System.out.println("Dijkstra Pathfinding from '" + start + "' to '" + end + "'." );
-        int n = G.numVertices();                    // get num of vertices in Graph
         Map<V, Integer> costs = new HashMap<>();     // initialize map of costs
         Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
 
@@ -351,7 +447,7 @@ public class GraphLib {
     }
 
     /**
-     * Bellman-Ford algorithm for computing shortest paths from given vertex.
+     * Bellman-Ford algorithm for computing shortest path costs from given vertex.
      * @param G Graph. Must implement edge labels as a numerical type.
      * @param start start vertex
      * @return Map of all vertices in the Graph and their distance from start vertex.
@@ -577,11 +673,14 @@ public class GraphLib {
         /* rebuild path */
         List<V> path = new LinkedList<>();
 
+        /* if predecessor of end vertex is null,
+           no path exists. */
+        if (backTrack.getOrDefault(end, null) == null) {
+            return "No path exists from " + start + " to " + end + ".";
+        }
+
         /* backTrack and prepend vertices to path */
         for (V vertex=end; vertex != null; vertex=backTrack.get(vertex)) {
-            if (backTrack.get(vertex) != null) {
-                System.out.println(vertex + " was discovered from " + backTrack.get(vertex));
-            }
             path.add(0, vertex);
         }
 
