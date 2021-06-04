@@ -1,4 +1,5 @@
 import java.util.Map;
+import java.util.Queue;
 
 /**
  * FILE: Graph.java
@@ -9,61 +10,83 @@ import java.util.Map;
 
  * @author Amittai J. Wekesa (@siavava)
  */
-public interface Graph<V,E> {
-    /* Number of vertices in Graph */
-    public int numVertices();
+interface Graph<V,E extends Comparable<E>> {
 
-    /*** Number of edges in Graph */
-    public int numEdges();
+    /** Wrapper class to export edges */
+    interface Edge<V,T extends Comparable<T>> extends Comparable<Edge<V,T>> {
+        /** Get weight of edge */
+        T getWeight();
+
+        /** get vertex that edge points to */
+        V getHead();
+
+        /** get source of vertex */
+        V getTail();
+
+    }
+
+    /** Number of vertices in Graph */
+    int numVertices();
+
+    /** Number of edges in Graph */
+    int numEdges();
 
     /** Iterable collection of vertices in Graph */
-    public Iterable<V> vertices();
+    Iterable<V> vertices();
 
     /** Occurrence of v as a vertex in Graph */
-    public boolean hasVertex(V v);
+    boolean hasVertex(V v);
 
     /** Out-degree of vertex in Graph */
-    public int outDegree(V v);
+    int outDegree(V v);
 
-    /** Get the overall popularity of a vertex */
-    public int distance(V u, V v);
+    /** Get the overall popularity of a vertex
+        Returns INFINITY for nonexistent paths */
+    int getDistance(V start, V end);
+
+    /** Get distances of other vertices from this vertex */
+    Map<V, Integer> getDistances(V v);
 
     /** In-degree of vertex in Graph */
-    public int inDegree(V v);
+    int inDegree(V v);
 
     /** Whether vertex has outbound edges */
-    public boolean hasOut(V v);
+    boolean hasOut(V v);
+
+    Iterable<Edge<V,?>> getEdges();
+
+    Queue<Edge<V,?>> getEdgesOrdered();
 
     /* whether vertex has inward edges */
-    public boolean hasIn(V v);
+    boolean hasIn(V v);
 
     /** Iterable collection vertices with with edges from the vertex */
-    public Iterable<V> outNeighbors(V v);
+    Iterable<V> outNeighbors(V v);
 
     /** Iterable collection of vertices with edges to the vertex */
-    public Iterable<V> inNeighbors(V v);
+    Iterable<V> inNeighbors(V v);
 
     /** Check for edge occurrence */
-    public boolean hasEdge(V u, V v);
+    boolean hasEdge(V u, V v);
 
     /** Get label of edge from u to v */
-    public E getLabel(V u, V v);
+    E getLabel(V u, V v);
 
     /** Insert vertex into Graph */
-    public void insertVertex(V v);
+    void insertVertex(V v);
 
     /** Insert directed edge from u to v  */
-    public void insertDirected(V u, V v, E e);
+    void insertDirected(V u, V v, E e);
 
     /** Insert undirected edge between u and v  */
-    public void insertUndirected(V u, V v, E e);
+    void insertUndirected(V u, V v, E e);
 
     /** Delete vertex and incident edges from Graph */
-    public void removeVertex(V v);
+    void removeVertex(V v);
 
     /** Remove the directed edge from u to v */
-    public void removeDirected(V u, V v);
+    void removeDirected(V u, V v);
 
     /** Remove the undirected edge from u to v */
-    public void removeUndirected(V u, V v);
+    void removeUndirected(V u, V v);
 }

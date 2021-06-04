@@ -18,7 +18,7 @@ public final class GraphLib {
      *          Start vertex points to "null" as predecessor.
      *          Individual paths can be reconstructed by back-tracing.
      */
-    public static <V,E> Map<V,V> bfs(Graph<V,E> G, V start) {
+    public static <V,E extends Comparable<E>> Map<V,V> bfs(Graph<V,E> G, V start) {
         System.out.println("Breadth-First Search from " + start);
 
         /* initialize variables */
@@ -55,7 +55,7 @@ public final class GraphLib {
      * @return Either a String indicating that no path exists,
      * or a list of the vertices in the path from A to B in order of traversal.
      */
-    public static <V,E> Object bfsPath(Graph<V,E> G, V start, V end) {
+    public static <V,E extends Comparable<E>> Object bfsPath(Graph<V,E> G, V start, V end) {
         System.out.println("BFS path-finding from " + start + " to " + end);
 
         /* initialize variables */
@@ -108,7 +108,7 @@ public final class GraphLib {
      *          Start vertex points to "null" as predecessor.
      *          Individual paths can be reconstructed by back-tracing.
      */
-    public static <V,E> Map<V,V> dfs(Graph<V,E> G, V start) {
+    public static <V,E extends Comparable<E>> Map<V,V> dfs(Graph<V,E> G, V start) {
         System.out.println("Depth-First Search from " + start);
         int time = 0;
 
@@ -147,7 +147,7 @@ public final class GraphLib {
      * @return Either a String indicating that no path exists,
      * or a list of the vertices in the path from A to B in order of traversal.
      */
-    public static <V,E> Object dfsPath(Graph<V,E> G, V start, V end) {
+    public static <V,E extends Comparable<E>> Object dfsPath(Graph<V,E> G, V start, V end) {
         System.out.println("Depth-First Search from " + start + " to " + end);
 
         /* initialize variables */
@@ -192,7 +192,7 @@ public final class GraphLib {
      * @param G : Graph to sort
      * @return Queue, a topological ordering of a Graph, or null if Graph is cyclic
      */
-    public static <V,E> Object TopoSort(Graph<V,E> G) {
+    public static <V,E extends Comparable<E>> Object TopoSort(Graph<V,E> G) {
         System.out.println("\nRunning Topological Sort on the Graph...\n");
 
         /*
@@ -246,7 +246,8 @@ public final class GraphLib {
      *           have a minimum cost value to another vertex v in the Graph
      *           then u is unreachable from v.
      */
-    public static <V,E> Map<V, Map<V, Integer>> FloydWarshallAPSP(Graph<V,E> G) {
+    public static <V,E extends Comparable<E>> Map<V, Map<V, Integer>>
+    FloydWarshallAPSP(Graph<V,E> G) {
         System.out.println("Running Floyd Warshall APSP on the Graph... \n");
         int n = G.numVertices();
         int[][][] OPT = new int[n+1][n+1][n+1];
@@ -327,7 +328,8 @@ public final class GraphLib {
      * @param start : start vertex
      * @return Map of costs of vertices from start
      */
-    public static <V,E> Map<V, Integer> Dijkstra(Graph<V,E> G, V start) {
+    public static <V,E extends Comparable<E>> Map<V, Integer>
+    Dijkstra(Graph<V,E> G, V start) {
         System.out.println("Dijkstra calculating costs from '" + start + "'." );
         // get num of vertices in Graph
         Map<V,Integer> costs = new HashMap<>();     // initialize map of costs
@@ -378,7 +380,8 @@ public final class GraphLib {
      * @param end : The goal vertex
      * @return Map of costs of vertices from start
      */
-    public static <V,E> Object DijkstraPath(Graph<V,E> G, V start, V end) {
+    public static <V,E extends Comparable<E>> Object
+    DijkstraPath(Graph<V,E> G, V start, V end) {
         System.out.println("Dijkstra Pathfinding from '" + start + "' to '" + end + "'." );
         Map<V, Integer> costs = new HashMap<>();     // initialize map of costs
         Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
@@ -440,6 +443,12 @@ public final class GraphLib {
         }
         System.out.println("Dijkstra: Target found in " + step + " steps.");
 
+                /* if predecessor of end vertex is null,
+           no path exists. */
+        if (backTrack.getOrDefault(end, null) == null) {
+            return "No path exists from " + start + " to " + end + ".";
+        }
+
         /* rebuild path */
         List<V> path = new LinkedList<>();
 
@@ -460,7 +469,8 @@ public final class GraphLib {
      * @return Map of all vertices in the Graph and their distance from start vertex.
      * Returns infinity for vertices with no no paths to start vertex
      */
-    public static <V,E> Map<V, Integer> BellmanFord(Graph<V,E> G, V start) {
+    public static <V,E extends Comparable<E>> Map<V, Integer>
+    BellmanFord(Graph<V,E> G, V start) {
 
         System.out.println("Running BellmanFord on the Graph from '" + start + "'.");
 
@@ -521,7 +531,8 @@ public final class GraphLib {
      * @return Ordered list representing the shortest pathway from start vertex to end vertex.
      * Returns null if no path found.
      */
-    public static <V,E> Map<V, List<V>> BellmanFordSSSP(Graph<V,E> G, V start) {
+    public static <V,E extends Comparable<E>> Map<V, List<V>>
+    BellmanFordSSSP(Graph<V,E> G, V start) {
 
         System.out.println("Finding all shortest paths from '" + start + "' using BellmanFord SSSP.");
 
@@ -613,78 +624,59 @@ public final class GraphLib {
      * @param end : The goal vertex
      * @return Map of costs of vertices from start
      */
-    public static <V,E> Object AStar(Graph<V,E> G, V start, V end) {
+    public static <V,E extends Comparable<E>> Object
+    AStar(Graph<V,E> G, V start, V end) {
         System.out.println("A* Pathfinding from '" + start + "' to '" + end + "'." );
         Map<V, Integer> costs = new HashMap<>();     // initialize map of costs
         Map<V, V> backTrack = new HashMap<>();      // initialize backtrack
         int step = 0;
+        Set<V> finishedVertices = new HashSet<>();
 
         /* save start vertex to back-track */
         backTrack.put(start, null);
 
         /* Initialize the priority queue */
-//        Queue<V> queue = new PriorityQueue<>(G.numVertices(), Comparator.comparingInt(costs::get + popularities::get));
-
         Queue<V> queue = new PriorityQueue<>(G.numVertices(), (n1, n2) -> {
             // compare n1 and n2
-            int distN1 = G.distance(n1, end);
-            int costN1 = costs.get(n1);
-            int distN2 = G.distance(n2, end);
-            int costN2 = costs.get(n2);
+            int distN1 = G.getDistance(n1, end);
+            int costN1 = costs.getOrDefault(n1, Integer.MAX_VALUE);
+            int distN2 = G.getDistance(n2, end);
+            int costN2 = costs.getOrDefault(n2, Integer.MAX_VALUE);
 
             if (costN1 == Integer.MAX_VALUE || costN2 == Integer.MAX_VALUE) {
-                if (costN1 == Integer.MAX_VALUE && costN2 == Integer.MAX_VALUE) {
-                    return 0;
-                }
-                /* if one OR the other is infinity, return > or < */
-                else if (costN1 == Integer.MAX_VALUE) {
-                    return 1;
-                }
-                else {
-                    return -1;
-                }
+                return Integer.compare(costN1, costN2);
             }
 
             /* if both distances are infinity, return 0 */
-            if (distN1 == Integer.MAX_VALUE || distN2 == Integer.MAX_VALUE) {
-                if (distN1 == Integer.MAX_VALUE && distN2 == Integer.MAX_VALUE) {
-                    return 0;
-                }
-                /* if one OR the other is infinity, return > or < */
-                else if (distN1 == Integer.MAX_VALUE) {
-                    return 1;
-                }
-                else {
-                    return -1;
-                }
+            else if (distN1 == Integer.MAX_VALUE || distN2 == Integer.MAX_VALUE) {
+                return Integer.compare(distN1, distN2);
             }
-
-
-
             /* return the comparison of cost to next + next to target
                if both don't have an infinity cost to target */
-            int one = costN1;
-            int two = costN2;
-
-            return Integer.compare(two, one);
+            else {
+                return Integer.compare(costN1 + distN1, costN2 + distN2);
+            }
         });
 
+        /* Initialize costs */
+        for (V v : G.vertices()) {
+            if (start.equals(v)) {
+                costs.put(v, 0);
+            }
+            else {
+                costs.put(v, Integer.MAX_VALUE);
+            }
+        }
         /*
          * Add all vertices to priority queue
          */
-        for (V v : G.vertices()) {
-            if (v != start) {
-                costs.put(v, Integer.MAX_VALUE);
-                queue.add(v);
-            }
-        }
-        costs.put(start, 0);
-        queue.add(start);
+        G.vertices().forEach(queue::add);
 
         /* repeatedly extract min until queue is empty */
         while (!queue.isEmpty()) {
             /* extract min from queue */
             V current = queue.remove();
+            finishedVertices.add(current);
             step++;
 
             /* get score of current */
@@ -692,17 +684,16 @@ public final class GraphLib {
 
             /* for each adjacent vertex, update cost if necessary */
             for (V next : G.outNeighbors(current)) {
-                if (next != current) {
+                if (!finishedVertices.contains(next)) {
                     int currToNext = (int) G.getLabel(current, next);
                     if ((curr + currToNext < costs.get(next))) {
-                        costs.put(next, (curr + currToNext));
+                        costs.put(next, curr + currToNext);
                         queue.remove(next);
                         queue.add(next);
 
                         /* if update done, remember the back-pointer */
                         backTrack.put(next, current);
                     }
-
                 }
             }
             // print progress
@@ -729,13 +720,37 @@ public final class GraphLib {
         /* backTrack and prepend vertices to path */
         for (V vertex=end; vertex != null; vertex=backTrack.get(vertex)) {
             path.add(0, vertex);
+            if (vertex.equals(start)) break;
         }
 
         /* return reconstructed path */
         return path;
     }
 
-    public static <V,E> @NotNull
+    public static <V,E extends Comparable<E>> Set<Graph.Edge<V,?>>
+    kruskalMST(Graph<V,E> G) {
+        // build dictionary of edges
+        Queue<Graph.Edge<V,?>> edges = G.getEdgesOrdered();
+        Set<V> seenVertices = new HashSet<>();
+        int edgesInMST = 0;
+        Set<Graph.Edge<V,?>> MST = new HashSet<>();
+        while (!edges.isEmpty()) {
+            Graph.Edge<V,?> min = edges.remove();
+            if (!seenVertices.contains(min.getHead()) && !seenVertices.contains(min.getTail())) {
+                MST.add(min);
+                seenVertices.add(min.getHead());
+                seenVertices.add(min.getTail());
+                edgesInMST++;
+            }
+            if (edgesInMST == G.numVertices() - 1) {
+                break;
+            }
+        }
+
+        return MST;
+    }
+
+    public static <V,E extends Comparable<E>> @NotNull
     Graph<V,E> copyGraph(Graph<V,E> G) {
 
         /* create copy Graph */

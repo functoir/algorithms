@@ -1,9 +1,6 @@
-import net.datastructures.Edge;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Adjacency-Map implementation of the Graph interface
@@ -17,11 +14,48 @@ import java.util.Map;
  * @author Amittai J. Wekesa (@siavava)
  */
 
-public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
+public class AdjacencyMapGraph<V,E extends Comparable<E>> implements Graph<V,E> {
     protected Map<V, Map<V, E>> out;		// out-edges v1 to v2: { v1 -> { v2 -> edge } }
     protected Map<V, Map<V, E>> in;		    // in-edges v2: { v1 -> { v2 -> edge } }
     protected Map<V, Map<V,Integer>> distances;   // For A* search; check how far one is from the other a vertex is.
     protected int indexedVertices;
+    protected Set<Edge<V,?>> edges;
+
+    public static class Edge<V,T extends Comparable<T>> implements Graph.Edge<V,T> {
+        V from, to;
+        T weight;
+
+        public Edge(V from, V to, T weight) {
+            this.from = from;
+            this.to = to;
+            this.weight = weight;
+        }
+
+        @Override
+        public T getWeight() {
+            return this.weight;
+        }
+
+        @Override
+        public V getHead() {
+            return this.to;
+        }
+
+        @Override
+        public V getTail() {
+            return this.from;
+        }
+
+        @Override
+        public int compareTo(@NotNull Graph.Edge<V, T> o) {
+            return this.getWeight().compareTo(o.getWeight());
+        }
+
+        @Override
+        public String toString() {
+            return "Edge from: " + from + ", to: " + to + ", weight: " + weight;
+        }
+    }
 
 
     /**
@@ -84,14 +118,23 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
         return in.get(v).size();
     }
 
-    public int distance(V u, V v) {
-        /* if distances not yet initialized OR new vertices have been added, rebuild */
+    private void computeDistances() {
         if ( (this.distances == null) ||
                 this.indexedVertices != ((Collection<V>) this.vertices()).size()) {
             this.distances = GraphLib.FloydWarshallAPSP(this);
             this.indexedVertices = ((Collection<V>) this.vertices()).size();
         }
-        return this.distances.getOrDefault(u, new HashMap<>()).getOrDefault(v, Integer.MAX_VALUE);
+    }
+
+    public int getDistance(V start, V end) {
+        /* if distances not yet initialized OR new vertices have been added, rebuild */
+        computeDistances();
+        return this.distances.getOrDefault(start, new HashMap<>()).getOrDefault(end, Integer.MAX_VALUE);
+    }
+
+    public Map<V, Integer> getDistances(V start) {
+        computeDistances();
+        return this.distances.getOrDefault(start, new HashMap<>());
     }
 
     /**
@@ -101,6 +144,28 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
      */
     public Iterable<V> outNeighbors(V v) {
         return out.get(v).keySet();
+    }
+
+    @Override
+    public Iterable<Graph.Edge<V,?>> getEdges() {
+        Set<Graph.Edge<V,? extends Comparable<?>>> edges = new HashSet<>();
+        for (V u : vertices()) {
+            for (V v : outNeighbors(u)) {
+                edges.add(new Edge<>(u, v, getLabel(u, v)));
+            }
+        }
+        return edges;
+    }
+
+    @Override
+    public Queue<Graph.Edge<V, ?>> getEdgesOrdered() {
+        Queue<Graph.Edge<V,? extends Comparable<?>>> ordering = new PriorityQueue<>();
+        for (V u : vertices()) {
+            for (V v : outNeighbors(u)) {
+                ordering.add(new Edge<>(u, v, getLabel(u, v)));
+            }
+        }
+        return ordering;
     }
 
     /**
@@ -208,6 +273,7 @@ public class AdjacencyMapGraph<V,E> implements Graph<V,E> {
      * Create a string representation of Graph
      * @return string representation of Graph
      */
+    @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
         for (V u : this.vertices()) {
