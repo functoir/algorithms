@@ -1,12 +1,6 @@
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.Queue;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * Adjacency-Map implementation of the Graph interface
@@ -27,18 +21,18 @@ public class AdjacencyMapGraph<V,E extends Comparable<E>> implements Graph<V,E> 
     protected int indexedVertices;
     protected Set<Edge<V,?>> edges;
 
-    public static class Edge<V,T extends Comparable<T>> implements Graph.Edge<V,T> {
+    public static class Edge<V,E extends Comparable<E>> implements Graph.Edge<V,E> {
         V from, to;
-        T weight;
+        E weight;
 
-        public Edge(V from, V to, T weight) {
+        public Edge(V from, V to, E weight) {
             this.from = from;
             this.to = to;
             this.weight = weight;
         }
 
         @Override
-        public T getWeight() {
+        public E getWeight() {
             return this.weight;
         }
 
@@ -53,7 +47,7 @@ public class AdjacencyMapGraph<V,E extends Comparable<E>> implements Graph<V,E> 
         }
 
         @Override
-        public int compareTo(@NotNull Graph.Edge<V, T> o) {
+        public int compareTo(@NotNull Graph.Edge<V, E> o) {
             return this.getWeight().compareTo(o.getWeight());
         }
 
@@ -216,15 +210,19 @@ public class AdjacencyMapGraph<V,E extends Comparable<E>> implements Graph<V,E> 
     }
 
     @Override
-    public void insertVertexByEdge(Graph.Edge<V, ?> newEdge) {
+    public void insertVertexByEdge(Graph.Edge<V, E> newEdge) {
         V head = newEdge.getHead();
         V tail = newEdge.getTail();
-        E label = (E) newEdge.getWeight();
+        E label = newEdge.getWeight();
 
-        if (!hasVertex(head)){
+        insertVertex(head);
+        insertVertex(tail);
+        insertUndirected(tail, head, label);
+    }
 
-        }
-
+    @Override
+    public void reconstruct(List<Graph.Edge<V, E>> edges) {
+        edges.forEach(this::insertVertexByEdge);
     }
 
     /**

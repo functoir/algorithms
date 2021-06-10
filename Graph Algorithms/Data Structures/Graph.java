@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -13,9 +14,9 @@ import java.util.Queue;
 public interface Graph<V,E extends Comparable<E>> {
 
     /** Wrapper class to export edges */
-    interface Edge<V,T extends Comparable<T>> extends Comparable<Edge<V,T>> {
+    interface Edge<V,E extends Comparable<E>> extends Comparable<Edge<V,E>> {
         /** Get weight of edge */
-        T getWeight();
+        E getWeight();
 
         /** get vertex that edge points to */
         V getHead();
@@ -75,7 +76,9 @@ public interface Graph<V,E extends Comparable<E>> {
     /** Insert vertex into Graph */
     void insertVertex(V v);
 
-    void insertVertexByEdge(Edge<V, ?> newEdge);
+    void insertVertexByEdge(Edge<V, E> newEdge);
+
+    void reconstruct(List<Edge<V,E>> edges);
 
     /** Insert directed edge from u to v  */
     void insertDirected(V u, V v, E e);
