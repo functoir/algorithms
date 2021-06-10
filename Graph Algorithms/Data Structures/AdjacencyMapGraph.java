@@ -1,6 +1,12 @@
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.Queue;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.PriorityQueue;
 
 /**
  * Adjacency-Map implementation of the Graph interface
@@ -120,9 +126,10 @@ public class AdjacencyMapGraph<V,E extends Comparable<E>> implements Graph<V,E> 
 
     private void computeDistances() {
         if ( (this.distances == null) ||
-                this.indexedVertices != ((Collection<V>) this.vertices()).size()) {
+                this.indexedVertices != ((Collection<V>) vertices()).size()) {
             this.distances = GraphLib.FloydWarshallAPSP(this);
-            this.indexedVertices = ((Collection<V>) this.vertices()).size();
+            distances = GraphLib.FloydWarshallAPSP(this);
+            this.indexedVertices = ((Collection<V>) vertices()).size();
         }
     }
 
@@ -208,6 +215,18 @@ public class AdjacencyMapGraph<V,E extends Comparable<E>> implements Graph<V,E> 
         }
     }
 
+    @Override
+    public void insertVertexByEdge(Graph.Edge<V, ?> newEdge) {
+        V head = newEdge.getHead();
+        V tail = newEdge.getTail();
+        E label = (E) newEdge.getWeight();
+
+        if (!hasVertex(head)){
+
+        }
+
+    }
+
     /**
      * Insert a directed edge into Graph
      * @param u: source vertex
@@ -276,10 +295,10 @@ public class AdjacencyMapGraph<V,E extends Comparable<E>> implements Graph<V,E> 
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        for (V u : this.vertices()) {
+        for (V u : vertices()) {
             str.append(u).append(" -> { ");
-            for (V v : this.outNeighbors(u)) {
-                str.append(" ").append(v).append("=").append(this.getLabel(u, v)).append(", ");
+            for (V v : outNeighbors(u)) {
+                str.append(" ").append(v).append("=").append(getLabel(u, v)).append(", ");
             }
             str.append("}\n");
         }

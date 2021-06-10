@@ -41,7 +41,7 @@ public interface Graph<V,E extends Comparable<E>> {
     int outDegree(V v);
 
     /** Get the overall popularity of a vertex
-        Returns INFINITY for nonexistent paths */
+     Returns INFINITY for nonexistent paths */
     int getDistance(V start, V end);
 
     /** Get distances of other vertices from this vertex */
@@ -74,6 +74,8 @@ public interface Graph<V,E extends Comparable<E>> {
 
     /** Insert vertex into Graph */
     void insertVertex(V v);
+
+    void insertVertexByEdge(Edge<V, ?> newEdge);
 
     /** Insert directed edge from u to v  */
     void insertDirected(V u, V v, E e);
