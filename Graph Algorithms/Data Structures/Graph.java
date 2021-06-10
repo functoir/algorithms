@@ -10,7 +10,7 @@ import java.util.Queue;
 
  * @author Amittai J. Wekesa (@siavava)
  */
-interface Graph<V,E extends Comparable<E>> {
+public interface Graph<V,E extends Comparable<E>> {
 
     /** Wrapper class to export edges */
     interface Edge<V,T extends Comparable<T>> extends Comparable<Edge<V,T>> {
