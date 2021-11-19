@@ -74,9 +74,6 @@ public final class GraphLib {
                     visited.add(v);             // remember neighbor has been visited.
                     queue.add(v);               // add to stack (so we can get vertex's neighbors)
                     backTrack.put(v, u);        // add edge to backtrace
-                    if (v.equals(end)) {
-                        break;
-                    }
                 }
                 if (v.equals(end)) {
                     break;
