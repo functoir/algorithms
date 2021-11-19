@@ -86,7 +86,7 @@ public final class GraphLib {
         if (backTrack.getOrDefault(vertex, null) == null) {
             return "No connection from " + start + " to " + end;
         }
-        List<V> path = new LinkedList<V>();
+        List<V> path = new LinkedList<>();
         for (; vertex != null; vertex = backTrack.getOrDefault(vertex, null)) {
             path.add(0, vertex);
         }
@@ -107,7 +107,6 @@ public final class GraphLib {
      */
     public static <V,E extends Comparable<E>> Map<V,V> dfs(Graph<V,E> G, V start) {
         System.out.println("Depth-First Search from " + start);
-        int time = 0;
 
         /* initialize variables */
         Map<V,V> backTrack = new HashMap<>();
@@ -174,7 +173,7 @@ public final class GraphLib {
             return "No connection from " + start + " to " + end;
         }
 
-        List<V> path = new LinkedList<V>();
+        List<V> path = new LinkedList<>();
         for (; vertex != null; vertex = backTrack.getOrDefault(vertex, null)) {
             path.add(0, vertex);
         }
@@ -263,7 +262,7 @@ public final class GraphLib {
                     V u = vertices.get(i-1);
                     V v = vertices.get(j-1);
                     if (G.hasEdge(u, v)) {
-                        OPT[i][j][0] = (int)G.getLabel(u, v);
+                        OPT[i][j][0] = (Integer)G.getLabel(u, v);
                     }
                     else {
                         OPT[i][j][0] = Integer.MAX_VALUE;
@@ -353,7 +352,7 @@ public final class GraphLib {
             if ( (curr = costs.get(current)) != Integer.MAX_VALUE) {
                 for (V next : G.outNeighbors(current)) {
                     if (next != current) {
-                        int currToNext = (int) G.getLabel(current, next);
+                        int currToNext = (Integer) G.getLabel(current, next);
                         if ((curr + currToNext < costs.get(next))) {
                             costs.put(next, (curr + currToNext));
                             queue.remove(next);
@@ -414,7 +413,7 @@ public final class GraphLib {
                 /* for each adjacent vertex, update cost if necessary */
                 for (V next : G.outNeighbors(current)) {
                     if (next != current) {
-                        int currToNext = (int) G.getLabel(current, next);
+                        int currToNext = (Integer) G.getLabel(current, next);
                         if ((curr + currToNext < costs.get(next))) {
                             costs.put(next, (curr + currToNext));
                             queue.remove(next);
@@ -500,7 +499,7 @@ public final class GraphLib {
                 int currentIndex = vertices.indexOf(currentVertex) + 1;
                 for (V nextVertex : G.outNeighbors(currentVertex)) {             // get outbound neighbors
                     int nextIndex = vertices.indexOf(nextVertex) + 1;
-                    int transition = (int) G.getLabel(currentVertex, nextVertex);
+                    int transition = (Integer) G.getLabel(currentVertex, nextVertex);
 
                     /*
                      * if path from current vertex improves min cost to neighbor,
@@ -564,7 +563,7 @@ public final class GraphLib {
                 int currentIndex = vertices.indexOf(currentVertex) + 1;
                 for (V nextVertex : G.outNeighbors(currentVertex)) {             // get outbound neighbors
                     int nextIndex = vertices.indexOf(nextVertex) + 1;
-                    int transition = (int) G.getLabel(currentVertex, nextVertex);
+                    int transition = (Integer) G.getLabel(currentVertex, nextVertex);
 
                     /*
                      * if path from current vertex improves min cost to neighbor,
@@ -682,7 +681,7 @@ public final class GraphLib {
             /* for each adjacent vertex, update cost if necessary */
             for (V next : G.outNeighbors(current)) {
                 if (!finishedVertices.contains(next)) {
-                    int currToNext = (int) G.getLabel(current, next);
+                    int currToNext = (Integer) G.getLabel(current, next);
                     if ((curr + currToNext < costs.get(next))) {
                         costs.put(next, curr + currToNext);
                         queue.remove(next);
